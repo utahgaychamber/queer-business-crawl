@@ -11,7 +11,7 @@ const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'qbc-admin-2025';
 // This is your fallback/seed list. Once Supabase is wired up,
 // the live list is loaded from the `businesses` table.
 // To add/edit businesses without touching code: update the Supabase table.
-
+ 
 const SEED_BUSINESSES = [
   { id:1,  name:'Brave Books SLC',              neighborhood:'9th & 9th',       type:'owned', emoji:'📚', about:'An independent bookstore celebrating queer voices, trans authors, and LGBTQ+ stories.' },
   { id:2,  name:'Velvet Underground Vintage',    neighborhood:'9th & 9th',       type:'owned', emoji:'👗', about:'Curated vintage clothing and accessories with a queer eye for style.' },
@@ -26,39 +26,39 @@ const SEED_BUSINESSES = [
   { id:11, name:'Red Mesa Ceramics',             neighborhood:'Millcreek',       type:'allied',emoji:'🏺', about:'Hand-thrown ceramics, classes, and gallery space celebrating southwestern tradition.' },
   { id:12, name:'Pioneer Park Provisions',       neighborhood:'West Side',       type:'allied',emoji:'🧺', about:'Local grocery and deli sourcing from Utah farms and producers.' },
 ];
-
+ 
 const MILESTONES = [
   { id:'m-3',  count:3,  icon:'🎟', label:'Entry prize',  sub:'Raffle ticket — claim at the Chamber booth.' },
   { id:'m-6',  count:6,  icon:'🛍', label:'Swag bag',     sub:'QBC swag bag — claim at the Chamber booth.' },
   { id:'m-10', count:10, icon:'🏆', label:'Grand prize',  sub:'Grand prize entry — claim at the Chamber booth.' },
   { id:'m-12', count:12, icon:'🌈', label:'Crawl Legend', sub:'You visited every stop. You ARE the crawl.' },
 ];
-
+ 
 // ── STATE ────────────────────────────────────────────────────────────────────
-let supabase = null;
+let supabaseClient = null;
 let currentPassportId = null;
 let currentPassport = null;
 let businesses = [...SEED_BUSINESSES];
 let visitedStopIds = new Set();
 let currentFilter = 'all';
-
+ 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   // Init Supabase if keys are present
   if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
     try {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       await loadBusinesses();
     } catch (e) {
       console.warn('Supabase init failed, using seed data:', e);
     }
   }
-
+ 
   // Check URL params — passport link or QR check-in
   const params = new URLSearchParams(window.location.search);
   const pid = params.get('p');
   const bid = params.get('b');
-
+ 
   if (pid && bid) {
     // QR scan: ?p=PASSPORT_ID&b=BUSINESS_ID
     currentPassportId = pid;
@@ -71,12 +71,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     showScreen('screen-landing');
   }
 });
-
+ 
 // ── SUPABASE HELPERS ─────────────────────────────────────────────────────────
 async function loadBusinesses() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('businesses')
       .select('*')
       .eq('active', true)
@@ -86,7 +86,7 @@ async function loadBusinesses() {
     }
   } catch (e) { /* fall back to seed */ }
 }
-
+ 
 async function createPassport(firstName, lastName, email, source) {
   const passportCode = 'QBC-' + Math.floor(1000 + Math.random() * 8999);
   const passport = {
@@ -97,9 +97,9 @@ async function createPassport(firstName, lastName, email, source) {
     source: source || null,
     created_at: new Date().toISOString(),
   };
-
-  if (supabase) {
-    const { data, error } = await supabase
+ 
+  if (supabaseClient) {
+    const { data, error } = await supabaseClient
       .from('passports')
       .insert([passport])
       .select()
@@ -111,10 +111,10 @@ async function createPassport(firstName, lastName, email, source) {
     return { ...passport, id: passportCode };
   }
 }
-
+ 
 async function getPassport(passportId) {
-  if (supabase) {
-    const { data, error } = await supabase
+  if (supabaseClient) {
+    const { data, error } = await supabaseClient
       .from('passports')
       .select('*, checkins(*)')
       .eq('code', passportId)
@@ -125,10 +125,10 @@ async function getPassport(passportId) {
     return null;
   }
 }
-
+ 
 async function recordCheckin(passportId, businessId) {
-  if (!supabase) return { demo: true };
-  const { data, error } = await supabase
+  if (!supabaseClient) return { demo: true };
+  const { data, error } = await supabaseClient
     .from('checkins')
     .insert([{
       passport_code: passportId,
@@ -140,19 +140,19 @@ async function recordCheckin(passportId, businessId) {
   if (error) throw error;
   return data;
 }
-
+ 
 async function getAdminStats() {
-  if (!supabase) return null;
+  if (!supabaseClient) return null;
   const [passports, checkins] = await Promise.all([
-    supabase.from('passports').select('id', { count: 'exact' }),
-    supabase.from('checkins').select('business_id, passport_code, checked_in_at').order('checked_in_at', { ascending: false }),
+    supabaseClient.from('passports').select('id', { count: 'exact' }),
+    supabaseClient.from('checkins').select('business_id, passport_code, checked_in_at').order('checked_in_at', { ascending: false }),
   ]);
   return {
     passportCount: passports.count || 0,
     checkins: checkins.data || [],
   };
 }
-
+ 
 // ── SCREEN NAVIGATION ────────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -162,7 +162,7 @@ function showScreen(id) {
     window.scrollTo(0, 0);
   }
 }
-
+ 
 // ── ONBOARDING ───────────────────────────────────────────────────────────────
 async function submitOnboarding() {
   const firstName = document.getElementById('ob-fname').value.trim();
@@ -171,21 +171,21 @@ async function submitOnboarding() {
   const source    = document.getElementById('ob-source').value;
   const errEl     = document.getElementById('ob-error');
   const btn       = document.getElementById('ob-submit');
-
+ 
   errEl.classList.add('hidden');
-
+ 
   if (!firstName) { showError('ob-error', 'Please enter your first name.'); return; }
   if (!email || !email.includes('@')) { showError('ob-error', 'Please enter a valid email address.'); return; }
-
+ 
   btn.disabled = true;
   btn.textContent = 'Creating your passport…';
-
+ 
   try {
     const passport = await createPassport(firstName, lastName, email, source);
     currentPassportId = passport.code;
     currentPassport = passport;
     visitedStopIds = new Set();
-
+ 
     document.getElementById('ob-passport-name').textContent = `${firstName} ${lastName}`.trim();
     document.getElementById('ob-passport-id').textContent = `PASSPORT #${passport.code}`;
     showScreen('screen-ob-success');
@@ -197,22 +197,22 @@ async function submitOnboarding() {
     btn.textContent = 'Send my passport link';
   }
 }
-
+ 
 // ── PASSPORT LOOKUP ──────────────────────────────────────────────────────────
 async function lookupPassport() {
   const email = document.getElementById('lookup-email').value.trim();
   const errEl = document.getElementById('lookup-error');
   const sucEl = document.getElementById('lookup-success');
-
+ 
   errEl.classList.add('hidden');
   sucEl.classList.add('hidden');
-
+ 
   if (!email || !email.includes('@')) {
     showError('lookup-error', 'Please enter a valid email address.'); return;
   }
-
-  if (supabase) {
-    const { data } = await supabase
+ 
+  if (supabaseClient) {
+    const { data } = await supabaseClient
       .from('passports')
       .select('code, first_name')
       .eq('email', email)
@@ -228,49 +228,49 @@ async function lookupPassport() {
     sucEl.classList.remove('hidden');
   }
 }
-
+ 
 // ── LOAD PASSPORT VIEW ───────────────────────────────────────────────────────
 async function loadPassport(passportId) {
   showScreen('screen-passport');
-
+ 
   if (passportId && supabase) {
     const data = await getPassport(passportId);
     if (data) {
       currentPassport = data;
       const checkins = data.checkins || [];
       visitedStopIds = new Set(checkins.map(c => c.business_id));
-
+ 
       const initials = ((data.first_name || '?')[0] + (data.last_name || '?')[0]).toUpperCase();
       document.getElementById('passport-avatar').textContent = initials;
       document.getElementById('passport-owner-name').textContent = `${data.first_name} ${data.last_name}`.trim();
       document.getElementById('passport-owner-id').textContent = `Passport #${data.code}`;
     }
   }
-
+ 
   renderPassport();
 }
-
+ 
 function renderPassport() {
   const total = businesses.length;
   const count = visitedStopIds.size;
-
+ 
   document.getElementById('progress-count').textContent = `${count} of ${total}`;
   document.getElementById('progress-fill').style.width = `${Math.round((count/total)*100)}%`;
-
+ 
   MILESTONES.forEach(m => {
     const el = document.getElementById(m.id);
     if (el) el.classList.toggle('unlocked', count >= m.count);
   });
-
+ 
   renderStops();
 }
-
+ 
 function renderStops() {
   const list = document.getElementById('stops-list');
   const filtered = currentFilter === 'all'
     ? businesses
     : businesses.filter(b => b.type === currentFilter);
-
+ 
   list.innerHTML = filtered.map(b => {
     const visited = visitedStopIds.has(b.id);
     return `
@@ -288,23 +288,23 @@ function renderStops() {
     `;
   }).join('');
 }
-
+ 
 function setFilter(f, el) {
   currentFilter = f;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   renderStops();
 }
-
+ 
 // ── CHECK-IN (QR LANDING) ────────────────────────────────────────────────────
 async function showCheckin(businessId) {
   const biz = businesses.find(b => b.id === businessId);
   if (!biz) { showScreen('screen-landing'); return; }
-
+ 
   const stopNum = businesses.indexOf(biz) + 1;
   const alreadyVisited = visitedStopIds.has(businessId);
   const newCount = alreadyVisited ? visitedStopIds.size : visitedStopIds.size + 1;
-
+ 
   document.getElementById('ci-stop-num').textContent = `Stop #${stopNum}`;
   document.getElementById('ci-biz-name').textContent = biz.name;
   document.getElementById('ci-biz-area').textContent = `${biz.neighborhood} · Salt Lake City`;
@@ -313,7 +313,7 @@ async function showCheckin(businessId) {
   document.getElementById('ci-biz-about').textContent = biz.about || '';
   document.getElementById('ci-progress-text').textContent = `${newCount} of ${businesses.length}`;
   document.getElementById('ci-progress-fill').style.width = `${Math.round((newCount/businesses.length)*100)}%`;
-
+ 
   if (currentPassport) {
     const name = `${currentPassport.first_name} ${currentPassport.last_name}`.trim();
     const initials = ((currentPassport.first_name||'?')[0] + (currentPassport.last_name||'?')[0]).toUpperCase();
@@ -321,26 +321,26 @@ async function showCheckin(businessId) {
     document.getElementById('ci-passport-name').textContent = name;
     document.getElementById('ci-passport-id').textContent = `Passport #${currentPassport.code}`;
   }
-
+ 
   document.getElementById('ci-already').classList.toggle('hidden', !alreadyVisited);
   document.getElementById('ci-stamp-btn').disabled = alreadyVisited;
-
+ 
   document.getElementById('ci-body').classList.remove('hidden');
   document.getElementById('ci-success').classList.add('hidden');
   document.getElementById('ci-success').classList.remove('visible');
-
+ 
   window._pendingCheckinBizId = businessId;
   showScreen('screen-checkin');
 }
-
+ 
 async function doCheckin() {
   const bizId = window._pendingCheckinBizId;
   if (!bizId || !currentPassportId) return;
-
+ 
   const btn = document.getElementById('ci-stamp-btn');
   btn.disabled = true;
   btn.textContent = 'Stamping…';
-
+ 
   try {
     await recordCheckin(currentPassportId, bizId);
     visitedStopIds.add(bizId);
@@ -349,18 +349,18 @@ async function doCheckin() {
     // In demo mode, just add locally
     visitedStopIds.add(bizId);
   }
-
+ 
   const biz = businesses.find(b => b.id === bizId);
   const count = visitedStopIds.size;
   const total = businesses.length;
-
+ 
   document.getElementById('ci-stamp-emoji').textContent = biz?.emoji || '📍';
   document.getElementById('ci-success-count').textContent = `Stop ${count} of ${total}.`;
   document.getElementById('ci-success-sub').textContent =
     count >= total
       ? 'You visited every stop. You are a Crawl Legend. 🌈'
       : `${total - count} more stop${total - count !== 1 ? 's' : ''} to go for the grand prize.`;
-
+ 
   // Check milestone unlocks
   const newMilestone = [...MILESTONES].reverse().find(m => count === m.count);
   const milestoneBox = document.getElementById('ci-milestone-box');
@@ -372,7 +372,7 @@ async function doCheckin() {
   } else {
     milestoneBox.classList.add('hidden');
   }
-
+ 
   // Suggest next stop
   const unvisited = businesses.filter(b => !visitedStopIds.has(b.id));
   const nextStop = unvisited[0];
@@ -386,16 +386,16 @@ async function doCheckin() {
   } else {
     nextEl.classList.add('hidden');
   }
-
+ 
   document.getElementById('ci-body').classList.add('hidden');
   const successEl = document.getElementById('ci-success');
   successEl.classList.remove('hidden');
   successEl.classList.add('visible');
-
+ 
   btn.disabled = false;
   btn.textContent = 'Stamp my passport';
 }
-
+ 
 // ── ADMIN ────────────────────────────────────────────────────────────────────
 function adminLogin() {
   const pw = document.getElementById('admin-password').value;
@@ -408,10 +408,10 @@ function adminLogin() {
     errEl.classList.remove('hidden');
   }
 }
-
+ 
 async function loadAdminDashboard() {
   const stats = await getAdminStats();
-
+ 
   if (!stats) {
     // Demo data
     renderAdminStats({ passportCount:247, checkinCount:1042, avgStops:4.2, prizeClaims:63 });
@@ -425,12 +425,12 @@ async function loadAdminDashboard() {
     ]);
     return;
   }
-
+ 
   const checkins = stats.checkins || [];
   const checkinCount = checkins.length;
   const uniquePassports = new Set(checkins.map(c => c.passport_code)).size;
   const avgStops = uniquePassports > 0 ? (checkinCount / uniquePassports).toFixed(1) : 0;
-
+ 
   renderAdminStats({
     passportCount: stats.passportCount,
     checkinCount,
@@ -440,14 +440,14 @@ async function loadAdminDashboard() {
       return pCheckins.length >= 3;
     }).length
   });
-
+ 
   // Count per business
   const bizCounts = {};
   checkins.forEach(c => { bizCounts[c.business_id] = (bizCounts[c.business_id]||0)+1; });
   const bizWithCounts = businesses.map(b => ({ ...b, checkins: bizCounts[b.id]||0 }))
     .sort((a,b) => b.checkins - a.checkins);
   renderAdminBizList(bizWithCounts);
-
+ 
   // Recent feed
   const recent = checkins.slice(0,10).map(c => {
     const biz = businesses.find(b => b.id === c.business_id);
@@ -456,7 +456,7 @@ async function loadAdminDashboard() {
   });
   renderAdminFeed(recent);
 }
-
+ 
 function renderAdminStats(s) {
   document.getElementById('admin-stats').innerHTML = `
     <div class="admin-stat"><div class="admin-stat-val pink">${s.passportCount}</div><div class="admin-stat-lbl">Passports issued</div></div>
@@ -465,7 +465,7 @@ function renderAdminStats(s) {
     <div class="admin-stat"><div class="admin-stat-val">${s.prizeClaims}</div><div class="admin-stat-lbl">Prize claims</div></div>
   `;
 }
-
+ 
 function renderAdminBizList(list) {
   const max = list[0]?.checkins || 1;
   document.getElementById('admin-biz-list').innerHTML = list.slice(0,8).map((b,i) => `
@@ -477,7 +477,7 @@ function renderAdminBizList(list) {
     </div>
   `).join('');
 }
-
+ 
 function renderAdminFeed(items) {
   document.getElementById('admin-feed').innerHTML = items.map(f => `
     <div class="admin-feed-item">
@@ -486,26 +486,26 @@ function renderAdminFeed(items) {
       <div class="admin-feed-time">${f.time}</div>
     </div>
   `).join('');
-
+ 
   document.getElementById('admin-prizes').innerHTML = `
     <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-entry">Entry (3 stops)</div>Raffle ticket</div><div class="admin-prize-val">—</div></div>
     <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-swag">Swag (6 stops)</div>Chamber bag</div><div class="admin-prize-val">—</div></div>
     <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-grand">Grand (10 stops)</div>Grand prize</div><div class="admin-prize-val">—</div></div>
   `;
 }
-
+ 
 function exportCSV(type) {
   showToast(`Exporting ${type} data…`);
-  if (!supabase) { showToast('Connect Supabase to enable exports.'); return; }
+  if (!supabaseClient) { showToast('Connect Supabase to enable exports.'); return; }
   // In production: generate CSV from Supabase data and trigger download
 }
-
+ 
 // ── UTILITIES ────────────────────────────────────────────────────────────────
 function showError(elId, msg) {
   const el = document.getElementById(elId);
   if (el) { el.textContent = msg; el.classList.remove('hidden'); }
 }
-
+ 
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -514,3 +514,4 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
 }
+ 
