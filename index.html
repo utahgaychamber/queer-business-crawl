@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Queer Business Crawl 2025 — Salt Lake City</title>
+  <meta name="description" content="Visit LGBTQ+-owned and allied businesses across SLC. Collect stamps, unlock prizes, support the community." />
+  <meta property="og:title" content="Queer Business Crawl 2025" />
+  <meta property="og:description" content="Your Pride passport to SLC's queer business community." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SCREEN: Landing -->
+  <div id="screen-landing" class="screen active">
+    <div class="landing-wrap">
+      <div class="stripe-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="landing-badge">QBC</div>
+      <h1 class="landing-headline">Queer Business<br><span>Crawl</span> 2025</h1>
+      <p class="landing-sub">Pride Weekend · June 6–8 · Salt Lake City</p>
+      <p class="landing-body">Visit LGBTQ+-owned and allied businesses across SLC. Collect stamps, unlock prizes, and put real dollars behind the community.</p>
+      <div class="landing-pills">
+        <div class="pill">12 stops</div>
+        <div class="pill">3 prize tiers</div>
+        <div class="pill">Free to join</div>
+        <div class="pill">No app needed</div>
+      </div>
+      <div class="landing-actions">
+        <button class="btn-primary" onclick="showScreen('screen-onboarding')">Claim my passport</button>
+        <button class="btn-secondary" onclick="showScreen('screen-lookup')">I have a passport →</button>
+      </div>
+      <div class="landing-admin-link">
+        <a href="#" onclick="showScreen('screen-admin-login'); return false;">Chamber admin</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: Onboarding -->
+  <div id="screen-onboarding" class="screen">
+    <div class="screen-wrap">
+      <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
+      <div class="stripe-bar"></div>
+      <h2 class="screen-title">Create your <span>passport</span></h2>
+      <p class="screen-sub">Just your name and email — no account, no app download.</p>
+      <div class="form-group">
+        <label class="form-label">First name</label>
+        <input class="form-input" id="ob-fname" type="text" placeholder="Jordan" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last name</label>
+        <input class="form-input" id="ob-lname" type="text" placeholder="Davis" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="ob-email" type="email" placeholder="jordan@email.com" />
+        <p class="form-hint">Your unique passport link will be sent here. Bookmark it — that's how you track progress.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">How did you hear about the Crawl? <span class="optional">(optional)</span></label>
+        <select class="form-input" id="ob-source">
+          <option value="">Select one…</option>
+          <option>SLC Pride / social media</option>
+          <option>Utah LGBTQ+ Chamber</option>
+          <option>A participating business</option>
+          <option>Friend or word of mouth</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div id="ob-error" class="form-error hidden"></div>
+      <button class="btn-primary" id="ob-submit" onclick="submitOnboarding()">Send my passport link</button>
+      <p class="terms">By joining, you agree to the QBC <a href="#">terms</a> and <a href="#">privacy policy</a>.</p>
+    </div>
+  </div>
+
+  <!-- SCREEN: Onboarding Success -->
+  <div id="screen-ob-success" class="screen">
+    <div class="screen-wrap text-center">
+      <div class="stripe-bar"></div>
+      <div class="success-icon">🏳️‍🌈</div>
+      <h2 class="screen-title">You're in. <span>Let's crawl.</span></h2>
+      <p class="screen-sub">Check your email for your personal passport link. Bookmark it — that's your passport all weekend.</p>
+      <div class="passport-card" id="ob-passport-card">
+        <div class="passport-card-header">
+          <div class="passport-id" id="ob-passport-id">PASSPORT #QBC-????</div>
+          <div class="passport-active-badge">Active</div>
+        </div>
+        <div class="passport-name" id="ob-passport-name">—</div>
+        <div class="passport-meta">Utah LGBTQ+ Chamber · Pride 2025</div>
+        <div class="passport-footer">
+          <span class="passport-stops">Stops visited: <strong>0 of 12</strong></span>
+          <span class="passport-cta">Start crawling →</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open my passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: Passport Lookup -->
+  <div id="screen-lookup" class="screen">
+    <div class="screen-wrap">
+      <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
+      <h2 class="screen-title">Find your <span>passport</span></h2>
+      <p class="screen-sub">Enter the email you used to sign up and we'll resend your passport link.</p>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="lookup-email" type="email" placeholder="jordan@email.com" />
+      </div>
+      <div id="lookup-error" class="form-error hidden"></div>
+      <div id="lookup-success" class="form-success hidden">Passport link sent! Check your email.</div>
+      <button class="btn-primary" onclick="lookupPassport()">Send my passport link</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: Passport View -->
+  <div id="screen-passport" class="screen">
+    <div class="passport-header">
+      <div class="stripe-bar"></div>
+      <div class="passport-header-inner">
+        <div class="passport-header-top">
+          <div>
+            <div class="passport-eyebrow">Utah LGBTQ+ Chamber of Commerce</div>
+            <div class="passport-title">Queer Business <span>Crawl</span> 2025</div>
+            <div class="passport-subtitle">Pride Weekend · June 6–8 · Salt Lake City</div>
+          </div>
+        </div>
+        <div class="passport-owner-row">
+          <div class="avatar" id="passport-avatar">JD</div>
+          <div>
+            <div class="passport-owner-name" id="passport-owner-name">Jordan Davis</div>
+            <div class="passport-owner-id" id="passport-owner-id">Passport #QBC-2491</div>
+          </div>
+          <div class="passport-status">Active ✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-label-row">
+        <span class="progress-label-text">Stops visited</span>
+        <span class="progress-count" id="progress-count">0 of 12</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="milestones" id="milestones">
+        <div class="milestone" id="m-3"><div class="milestone-icon">🎟</div><div class="milestone-count">3 stops</div><div class="milestone-label">Entry prize</div></div>
+        <div class="milestone" id="m-6"><div class="milestone-icon">🛍</div><div class="milestone-count">6 stops</div><div class="milestone-label">Swag bag</div></div>
+        <div class="milestone" id="m-10"><div class="milestone-icon">🏆</div><div class="milestone-count">10 stops</div><div class="milestone-label">Grand prize</div></div>
+        <div class="milestone" id="m-12"><div class="milestone-icon">🌈</div><div class="milestone-count">All 12</div><div class="milestone-label">Legend</div></div>
+      </div>
+    </div>
+    <div class="stops-header">
+      <div class="stops-title">Your Stops</div>
+      <div class="filter-row">
+        <div class="chip active" onclick="setFilter('all', this)">All</div>
+        <div class="chip" onclick="setFilter('owned', this)">LGBTQ+ Owned</div>
+        <div class="chip" onclick="setFilter('allied', this)">Allied</div>
+      </div>
+    </div>
+    <div class="stops-list" id="stops-list"></div>
+  </div>
+
+  <!-- SCREEN: Check-in (QR landing) -->
+  <div id="screen-checkin" class="screen">
+    <div class="checkin-biz-hero" id="ci-biz-hero">
+      <div class="ci-eyebrow">Queer Business Crawl · <span id="ci-stop-num">Stop #1</span></div>
+      <div class="ci-biz-name" id="ci-biz-name">Business Name</div>
+      <div class="ci-biz-area" id="ci-biz-area">Neighborhood</div>
+      <div class="ci-tags">
+        <div class="ci-tag ci-tag-owned" id="ci-type-tag">LGBTQ+ Owned</div>
+        <div class="ci-tag ci-tag-stop" id="ci-stop-tag">Stop 1 of 12</div>
+      </div>
+    </div>
+    <div class="checkin-body" id="ci-body">
+      <div class="ci-passport-row">
+        <div class="avatar" id="ci-avatar">?</div>
+        <div style="flex:1">
+          <div class="ci-passport-name" id="ci-passport-name">Loading…</div>
+          <div class="ci-passport-id" id="ci-passport-id"></div>
+        </div>
+        <div class="ci-not-you" onclick="showScreen('screen-lookup')">Not you?</div>
+      </div>
+      <div class="ci-progress-mini">
+        <div class="ci-progress-label-row">
+          <span>Progress after this stop</span>
+          <span id="ci-progress-text">— of 12</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="ci-progress-fill" style="width:0%"></div></div>
+      </div>
+      <div id="ci-already" class="ci-already hidden">
+        <div class="ci-already-icon">✓</div>
+        <div class="ci-already-text">You already stamped this stop! Keep crawling.</div>
+      </div>
+      <button class="btn-primary" id="ci-stamp-btn" onclick="doCheckin()">Stamp my passport</button>
+      <p class="ci-biz-about" id="ci-biz-about"></p>
+    </div>
+    <div class="checkin-success hidden" id="ci-success">
+      <div class="ci-stamp-circle" id="ci-stamp-emoji">📍</div>
+      <h2 class="screen-title"><span>Stamped!</span> <span id="ci-success-count"></span></h2>
+      <p class="screen-sub" id="ci-success-sub"></p>
+      <div class="ci-milestone-unlocked hidden" id="ci-milestone-box">
+        <div class="ci-milestone-icon" id="ci-milestone-icon">🎟</div>
+        <div>
+          <div class="ci-milestone-title" id="ci-milestone-title">Prize unlocked!</div>
+          <div class="ci-milestone-sub" id="ci-milestone-sub">Claim at the Chamber booth.</div>
+        </div>
+      </div>
+      <div class="ci-next-stop hidden" id="ci-next-stop">
+        <div class="ci-next-num" id="ci-next-num">02</div>
+        <div>
+          <div class="ci-next-name" id="ci-next-name">Next stop</div>
+          <div class="ci-next-area" id="ci-next-area"></div>
+        </div>
+        <div class="ci-next-arrow">→</div>
+      </div>
+      <button class="btn-primary" onclick="loadPassport(currentPassportId)">View my passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: Admin Login -->
+  <div id="screen-admin-login" class="screen">
+    <div class="screen-wrap">
+      <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
+      <h2 class="screen-title">Chamber <span>Admin</span></h2>
+      <div class="form-group">
+        <label class="form-label">Admin password</label>
+        <input class="form-input" id="admin-password" type="password" placeholder="Enter password" />
+      </div>
+      <div id="admin-login-error" class="form-error hidden">Incorrect password.</div>
+      <button class="btn-primary" onclick="adminLogin()">Sign in</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: Admin Dashboard -->
+  <div id="screen-admin" class="screen">
+    <div class="admin-topbar">
+      <div class="admin-title">QBC Admin · <span>Chamber Dashboard</span></div>
+      <div class="admin-live"><div class="live-dot"></div>Live</div>
+    </div>
+    <div class="admin-stats" id="admin-stats"></div>
+    <div class="admin-section">
+      <div class="admin-section-title">Top stops by check-ins</div>
+      <div id="admin-biz-list"></div>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Prize milestone claims</div>
+      <div id="admin-prizes"></div>
+    </div>
+    <div class="admin-section">
+      <div class="admin-section-title">Recent activity</div>
+      <div id="admin-feed"></div>
+    </div>
+    <div class="admin-export-row">
+      <button class="btn-export" onclick="exportCSV('checkins')">Export check-ins</button>
+      <button class="btn-export" onclick="exportCSV('passports')">Export passports</button>
+      <button class="btn-export btn-export-primary" onclick="exportCSV('full')">Full report</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
