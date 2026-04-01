@@ -95,7 +95,6 @@ async function createPassport(firstName, lastName, email, source) {
     last_name: lastName,
     email: email,
     source: source || null,
-    created_at: new Date().toISOString(),
   };
  
   if (supabaseClient) {
