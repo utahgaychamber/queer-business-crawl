@@ -37,6 +37,7 @@ const MILESTONES = [
 // ── STATE ────────────────────────────────────────────────────────────────────
 let supabaseClient = null;
 let currentPassportId = null;
+let currentPassportUuid = null; // DB uuid — used for checkins FK
 let currentPassport = null;
 let businesses = [...SEED_BUSINESSES];
 let visitedStopIds = new Set();
@@ -150,7 +151,7 @@ async function recordCheckin(passportId, businessId) {
   const { data, error } = await supabaseClient
     .from('checkins')
     .insert([{
-      passport_code: passportId,
+      passport_id: passportId,
       business_id: businessId,
       checked_in_at: new Date().toISOString(),
     }])
@@ -202,6 +203,7 @@ async function submitOnboarding() {
   try {
     const passport = await createPassport(firstName, lastName, email, source);
     currentPassportId = passport.passport_code;
+    currentPassportUuid = passport.id;
     currentPassport = passport;
     visitedStopIds = new Set();
 
@@ -259,8 +261,9 @@ async function loadPassport(passportId) {
     const data = await getPassport(passportId);
     if (data) {
       currentPassport = data;
+      currentPassportUuid = data.id;
       const checkins = data.checkins || [];
-      visitedStopIds = new Set(checkins.map(c => c.business_id));
+      visitedStopIds = new Set(checkins.map(c => c.business_id)); // uuids
  
       const initials = ((data.first_name || '?')[0] + (data.last_name || '?')[0]).toUpperCase();
       document.getElementById('passport-avatar').textContent = initials;
@@ -320,8 +323,11 @@ function setFilter(f, el) {
  
 // ── CHECK-IN (QR LANDING) ────────────────────────────────────────────────────
 async function showCheckin(businessId) {
-  const biz = businesses.find(b => b.id === businessId);
+  // QR codes use ?b=<stop_number> (integer). DB businesses have uuid ids.
+  // Match by stop_number first (DB), fall back to id (seed data).
+  const biz = businesses.find(b => b.stop_number === businessId || b.id === businessId);
   if (!biz) { showScreen('screen-landing'); return; }
+  window._pendingCheckinBizUuid = biz.id; // uuid for DB insert
  
   const stopNum = businesses.indexOf(biz) + 1;
   const alreadyVisited = visitedStopIds.has(businessId);
@@ -364,8 +370,9 @@ async function doCheckin() {
   btn.textContent = 'Stamping…';
  
   try {
-    await recordCheckin(currentPassportId, bizId);
-    visitedStopIds.add(bizId);
+    const bizUuid = window._pendingCheckinBizUuid || bizId;
+    await recordCheckin(currentPassportUuid || currentPassportId, bizUuid);
+    visitedStopIds.add(bizUuid); // store uuid to match DB checkins
   } catch (e) {
     console.error('Checkin error:', e);
     // In demo mode, just add locally
