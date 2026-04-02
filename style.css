@@ -550,3 +550,18 @@ html, body {
   z-index: 999; pointer-events: none;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Map ── */
+.map-section { padding: 0 1rem; }
+.map-section .stops-title {
+  padding: 1.25rem 0 0.5rem;
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: #888;
+}
+#passport-map {
+  height: 260px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #eee;
+  z-index: 0;
+}
