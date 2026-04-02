@@ -174,7 +174,7 @@ async function getAdminStats() {
   if (!supabaseClient) return null;
   const [passports, checkins] = await Promise.all([
     supabaseClient.from('passports').select('id', { count: 'exact' }),
-    supabaseClient.from('checkins').select('business_id, passport_code, checked_in_at').order('checked_in_at', { ascending: false }),
+    supabaseClient.from('checkins').select('business_id, passport_id, checked_in_at').order('checked_in_at', { ascending: false }),
   ]);
   return {
     passportCount: passports.count || 0,
@@ -466,31 +466,29 @@ async function loadAdminDashboard() {
  
   const checkins = stats.checkins || [];
   const checkinCount = checkins.length;
-  const uniquePassports = new Set(checkins.map(c => c.passport_code)).size;
+  const uniquePassports = new Set(checkins.map(c => c.passport_id)).size;
   const avgStops = uniquePassports > 0 ? (checkinCount / uniquePassports).toFixed(1) : 0;
- 
-  renderAdminStats({
-    passportCount: stats.passportCount,
-    checkinCount,
-    avgStops,
-    prizeClaims: checkins.filter(c => {
-      const pCheckins = checkins.filter(x => x.passport_code === c.passport_code);
-      return pCheckins.length >= 3;
-    }).length
-  });
- 
-  // Count per business
+
+  // Count check-ins per passport to find prize-tier claimants
+  const perPassport = {};
+  checkins.forEach(c => { perPassport[c.passport_id] = (perPassport[c.passport_id] || 0) + 1; });
+  const prizeClaims = Object.values(perPassport).filter(n => n >= 3).length;
+
+  renderAdminStats({ passportCount: stats.passportCount, checkinCount, avgStops, prizeClaims });
+
+  // Count per business (uuid → count)
   const bizCounts = {};
-  checkins.forEach(c => { bizCounts[c.business_id] = (bizCounts[c.business_id]||0)+1; });
-  const bizWithCounts = businesses.map(b => ({ ...b, checkins: bizCounts[b.id]||0 }))
-    .sort((a,b) => b.checkins - a.checkins);
+  checkins.forEach(c => { bizCounts[c.business_id] = (bizCounts[c.business_id] || 0) + 1; });
+  const bizWithCounts = businesses.map(b => ({ ...b, checkins: bizCounts[b.id] || 0 }))
+    .sort((a, b) => b.checkins - a.checkins);
   renderAdminBizList(bizWithCounts);
- 
-  // Recent feed
-  const recent = checkins.slice(0,10).map(c => {
+
+  // Recent feed — show truncated passport_id and business name
+  const recent = checkins.slice(0, 10).map(c => {
     const biz = businesses.find(b => b.id === c.business_id);
     const mins = Math.round((Date.now() - new Date(c.checked_in_at)) / 60000);
-    return { name: c.passport_code, biz: biz?.name || 'Unknown', time: mins < 60 ? `${mins}m ago` : `${Math.round(mins/60)}h ago` };
+    const label = c.passport_id ? c.passport_id.slice(0, 8) + '…' : 'Unknown';
+    return { name: label, biz: biz?.name || 'Unknown', time: mins < 60 ? `${mins}m ago` : `${Math.round(mins / 60)}h ago` };
   });
   renderAdminFeed(recent);
 }
@@ -532,10 +530,67 @@ function renderAdminFeed(items) {
   `;
 }
  
-function exportCSV(type) {
-  showToast(`Exporting ${type} data…`);
+async function exportCSV(type) {
   if (!supabaseClient) { showToast('Connect Supabase to enable exports.'); return; }
-  // In production: generate CSV from Supabase data and trigger download
+  showToast('Preparing export…');
+  try {
+    let data, filename;
+
+    if (type === 'passports') {
+      const res = await supabaseClient
+        .from('passports')
+        .select('passport_code, first_name, last_name, email, referral_source, created_at')
+        .order('created_at');
+      data = res.data;
+      filename = 'qbc-passports.csv';
+
+    } else if (type === 'checkins') {
+      const res = await supabaseClient
+        .from('checkins')
+        .select('checked_in_at, passport_id, business_id')
+        .order('checked_in_at');
+      data = res.data;
+      filename = 'qbc-checkins.csv';
+
+    } else if (type === 'full') {
+      // Join checkins with passport and business info via FK relationships
+      const res = await supabaseClient
+        .from('checkins')
+        .select('checked_in_at, passports(passport_code, first_name, last_name, email), businesses(name, neighborhood, type)')
+        .order('checked_in_at');
+      data = (res.data || []).map(c => ({
+        checked_in_at:  c.checked_in_at,
+        passport_code:  c.passports?.passport_code  || '',
+        first_name:     c.passports?.first_name     || '',
+        last_name:      c.passports?.last_name      || '',
+        email:          c.passports?.email          || '',
+        business_name:  c.businesses?.name          || '',
+        neighborhood:   c.businesses?.neighborhood  || '',
+        type:           c.businesses?.type          || '',
+      }));
+      filename = 'qbc-full-report.csv';
+    }
+
+    downloadCSV(data, filename);
+  } catch (e) {
+    console.error('Export error:', e);
+    showToast('Export failed — check console.');
+  }
+}
+
+function downloadCSV(data, filename) {
+  if (!data || data.length === 0) { showToast('No data to export.'); return; }
+  const headers = Object.keys(data[0]);
+  const rows = data.map(row =>
+    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+  );
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Downloaded ${filename}`);
 }
  
 // ── UTILITIES ────────────────────────────────────────────────────────────────
