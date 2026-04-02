@@ -314,6 +314,8 @@ async function submitOnboarding() {
 
     document.getElementById('ob-passport-name').textContent = `${firstName} ${lastName}`.trim();
     document.getElementById('ob-passport-id').textContent = `PASSPORT #${passport.passport_code}`;
+    const passportUrl = `${location.origin}?p=${passport.passport_code}`;
+    document.getElementById('ob-passport-url').textContent = passportUrl;
     showScreen('screen-ob-success');
   } catch (e) {
     console.error('Onboarding error:', e);
@@ -690,6 +692,19 @@ function downloadCSV(data, filename) {
 }
  
 // ── UTILITIES ────────────────────────────────────────────────────────────────
+function copyPassportLink() {
+  const url = document.getElementById('ob-passport-url')?.textContent;
+  if (!url) return;
+  navigator.clipboard.writeText(url).then(() => showToast('Link copied!')).catch(() => {
+    // Fallback for older browsers
+    const el = document.createElement('textarea');
+    el.value = url; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('Link copied!');
+  });
+}
+
 function showError(elId, msg) {
   const el = document.getElementById(elId);
   if (el) { el.textContent = msg; el.classList.remove('hidden'); }
