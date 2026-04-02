@@ -62,7 +62,16 @@ document.addEventListener('DOMContentLoaded', async () => {
  
   if (pid && bid) {
     // QR scan: ?p=PASSPORT_ID&b=BUSINESS_ID
+    // Load passport first so we have the UUID and existing checkins
     currentPassportId = pid;
+    if (supabaseClient) {
+      const passportData = await getPassport(pid);
+      if (passportData) {
+        currentPassport = passportData;
+        currentPassportUuid = passportData.id;
+        visitedStopIds = new Set((passportData.checkins || []).map(c => c.business_id));
+      }
+    }
     await showCheckin(parseInt(bid));
   } else if (pid) {
     // Direct passport link: ?p=PASSPORT_ID
@@ -330,7 +339,7 @@ async function showCheckin(businessId) {
   window._pendingCheckinBizUuid = biz.id; // uuid for DB insert
  
   const stopNum = businesses.indexOf(biz) + 1;
-  const alreadyVisited = visitedStopIds.has(businessId);
+  const alreadyVisited = visitedStopIds.has(biz.id); // compare uuid, not stop number
   const newCount = alreadyVisited ? visitedStopIds.size : visitedStopIds.size + 1;
  
   document.getElementById('ci-stop-num').textContent = `Stop #${stopNum}`;
