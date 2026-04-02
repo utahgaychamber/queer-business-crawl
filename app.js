@@ -88,26 +88,46 @@ async function loadBusinesses() {
 }
  
 async function createPassport(firstName, lastName, email, source) {
-  const passportCode = 'QBC-' + Math.floor(1000 + Math.random() * 8999);
+  // Generate a longer code to dramatically reduce collision chance
+  function genCode() {
+    return 'QBC-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+  }
+
   const passport = {
-    code: passportCode,
+    code: genCode(),
     first_name: firstName,
-    last_name: lastName,
+    last_name: lastName || null,
     email: email,
     source: source || null,
   };
- 
+
   if (supabaseClient) {
-    const { data, error } = await supabaseClient
-      .from('passports')
-      .insert([passport])
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+    let attempts = 0;
+    while (attempts < 5) {
+      const { data, error } = await supabaseClient
+        .from('passports')
+        .insert([passport])
+        .select()
+        .single();
+
+      if (!error) return data;
+
+      // Retry only on unique-constraint collision (code already taken)
+      if (error.code === '23505') {
+        passport.code = genCode();
+        attempts++;
+        continue;
+      }
+
+      // Surface the real Supabase error for easier debugging
+      const detail = error.message || JSON.stringify(error);
+      console.error('Supabase insert error:', error);
+      throw new Error(`Passport insert failed (${error.code || '400'}): ${detail}`);
+    }
+    throw new Error('Could not generate a unique passport code — please try again.');
   } else {
     // Demo mode — return local object
-    return { ...passport, id: passportCode };
+    return { ...passport, id: passport.code };
   }
 }
  
@@ -184,13 +204,16 @@ async function submitOnboarding() {
     currentPassportId = passport.code;
     currentPassport = passport;
     visitedStopIds = new Set();
- 
+
+    // Update the URL so the user has a real bookmarkable passport link
+    window.history.replaceState({}, '', `?p=${passport.code}`);
+
     document.getElementById('ob-passport-name').textContent = `${firstName} ${lastName}`.trim();
     document.getElementById('ob-passport-id').textContent = `PASSPORT #${passport.code}`;
     showScreen('screen-ob-success');
   } catch (e) {
-    showError('ob-error', 'Something went wrong. Please try again.');
-    console.error(e);
+    console.error('Onboarding error:', e);
+    showError('ob-error', e.message || 'Something went wrong. Please try again.');
   } finally {
     btn.disabled = false;
     btn.textContent = 'Send my passport link';
@@ -232,7 +255,7 @@ async function lookupPassport() {
 async function loadPassport(passportId) {
   showScreen('screen-passport');
  
-  if (passportId && supabase) {
+  if (passportId && supabaseClient) {
     const data = await getPassport(passportId);
     if (data) {
       currentPassport = data;
@@ -513,4 +536,3 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
 }
- 
