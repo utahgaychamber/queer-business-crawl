@@ -316,7 +316,7 @@ function renderStops() {
         </div>
         <div class="stop-right">
           <div class="stop-type-tag ${b.type === 'owned' ? 'tag-owned' : 'tag-allied'}">${b.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied'}</div>
-          <button class="check-btn">${visited ? '✓ Visited' : 'Check in'}</button>
+          <button class="check-btn" ${visited ? 'disabled' : `onclick="showCheckin(${b.stop_number})"`}>${visited ? '✓ Visited' : 'Check in'}</button>
         </div>
       </div>
     `;
