@@ -94,11 +94,11 @@ async function createPassport(firstName, lastName, email, source) {
   }
 
   const passport = {
-    code: genCode(),
+    passport_code: genCode(),
     first_name: firstName,
     last_name: lastName || null,
     email: email,
-    source: source || null,
+    referral_source: source || null,
   };
 
   if (supabaseClient) {
@@ -114,7 +114,7 @@ async function createPassport(firstName, lastName, email, source) {
 
       // Retry only on unique-constraint collision (code already taken)
       if (error.code === '23505') {
-        passport.code = genCode();
+        passport.passport_code = genCode();
         attempts++;
         continue;
       }
@@ -127,7 +127,7 @@ async function createPassport(firstName, lastName, email, source) {
     throw new Error('Could not generate a unique passport code — please try again.');
   } else {
     // Demo mode — return local object
-    return { ...passport, id: passport.code };
+    return { ...passport, id: passport.passport_code };
   }
 }
  
@@ -136,7 +136,7 @@ async function getPassport(passportId) {
     const { data, error } = await supabaseClient
       .from('passports')
       .select('*, checkins(*)')
-      .eq('code', passportId)
+      .eq('passport_code', passportId)
       .single();
     if (error) return null;
     return data;
@@ -201,15 +201,15 @@ async function submitOnboarding() {
  
   try {
     const passport = await createPassport(firstName, lastName, email, source);
-    currentPassportId = passport.code;
+    currentPassportId = passport.passport_code;
     currentPassport = passport;
     visitedStopIds = new Set();
 
     // Update the URL so the user has a real bookmarkable passport link
-    window.history.replaceState({}, '', `?p=${passport.code}`);
+    window.history.replaceState({}, '', `?p=${passport.passport_code}`);
 
     document.getElementById('ob-passport-name').textContent = `${firstName} ${lastName}`.trim();
-    document.getElementById('ob-passport-id').textContent = `PASSPORT #${passport.code}`;
+    document.getElementById('ob-passport-id').textContent = `PASSPORT #${passport.passport_code}`;
     showScreen('screen-ob-success');
   } catch (e) {
     console.error('Onboarding error:', e);
@@ -265,7 +265,7 @@ async function loadPassport(passportId) {
       const initials = ((data.first_name || '?')[0] + (data.last_name || '?')[0]).toUpperCase();
       document.getElementById('passport-avatar').textContent = initials;
       document.getElementById('passport-owner-name').textContent = `${data.first_name} ${data.last_name}`.trim();
-      document.getElementById('passport-owner-id').textContent = `Passport #${data.code}`;
+      document.getElementById('passport-owner-id').textContent = `Passport #${data.passport_code}`;
     }
   }
  
@@ -341,7 +341,7 @@ async function showCheckin(businessId) {
     const initials = ((currentPassport.first_name||'?')[0] + (currentPassport.last_name||'?')[0]).toUpperCase();
     document.getElementById('ci-avatar').textContent = initials;
     document.getElementById('ci-passport-name').textContent = name;
-    document.getElementById('ci-passport-id').textContent = `Passport #${currentPassport.code}`;
+    document.getElementById('ci-passport-id').textContent = `Passport #${currentPassport.passport_code}`;
   }
  
   document.getElementById('ci-already').classList.toggle('hidden', !alreadyVisited);
