@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
@@ -150,6 +151,10 @@
         <div class="milestone" id="m-12"><div class="milestone-icon">🌈</div><div class="milestone-count">All 12</div><div class="milestone-label">Legend</div></div>
       </div>
     </div>
+    <div class="map-section">
+      <div class="stops-title">Map</div>
+      <div id="passport-map"></div>
+    </div>
     <div class="stops-header">
       <div class="stops-title">Your Stops</div>
       <div class="filter-row">
@@ -263,6 +268,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
