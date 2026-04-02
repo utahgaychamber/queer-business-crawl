@@ -340,18 +340,18 @@ async function lookupPassport() {
   if (supabaseClient) {
     const { data } = await supabaseClient
       .from('passports')
-      .select('code, first_name')
+      .select('passport_code, first_name')
       .eq('email', email)
       .single();
     if (data) {
-      sucEl.textContent = `Passport link resent to ${email}!`;
-      sucEl.classList.remove('hidden');
+      // Load passport directly — email sending not yet wired up
+      currentPassportId = data.passport_code;
+      await loadPassport(data.passport_code);
     } else {
       showError('lookup-error', 'No passport found for that email. Try claiming one first.');
     }
   } else {
-    sucEl.textContent = `Passport link sent to ${email}!`;
-    sucEl.classList.remove('hidden');
+    showError('lookup-error', 'No passport found for that email. Try claiming one first.');
   }
 }
  
