@@ -42,6 +42,25 @@ let currentPassport = null;
 let businesses = [...SEED_BUSINESSES];
 let visitedStopIds = new Set();
 let currentFilter = 'all';
+let passportMap = null;
+let mapMarkers = {};
+
+// ── MAP COORDINATES ──────────────────────────────────────────────────────────
+// Approximate SLC locations per business — update with real addresses in May.
+const BUSINESS_COORDS = {
+  'Brave Books SLC':             [40.7516, -111.8607],
+  'Velvet Underground Vintage':  [40.7511, -111.8615],
+  'Gilded Cactus Bar':           [40.7200, -111.8574],
+  'Bloom Florals':               [40.7195, -111.8562],
+  'Prism Print Studio':          [40.7468, -111.8955],
+  'Wild Honey Candle Co.':       [40.7461, -111.8963],
+  'Copper & Kind Coffee':        [40.7610, -111.8912],
+  'Spectrum Fitness SLC':        [40.7603, -111.8900],
+  'Saltair Salon Collective':    [40.7764, -111.8886],
+  'The Porch Kitchen':           [40.6876, -111.8714],
+  'Red Mesa Ceramics':           [40.6869, -111.8722],
+  'Pioneer Park Provisions':     [40.7608, -111.9112],
+};
  
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -182,6 +201,80 @@ async function getAdminStats() {
   };
 }
  
+// ── MAP ──────────────────────────────────────────────────────────────────────
+function initMap() {
+  const container = document.getElementById('passport-map');
+  if (!container) return;
+
+  // Destroy existing map instance before re-init (prevents Leaflet errors)
+  if (passportMap) {
+    passportMap.remove();
+    passportMap = null;
+    mapMarkers = {};
+  }
+
+  passportMap = L.map('passport-map', { zoomControl: true, scrollWheelZoom: false })
+    .setView([40.7484, -111.8910], 12); // SLC center
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(passportMap);
+
+  businesses.forEach(b => {
+    const coords = BUSINESS_COORDS[b.name];
+    if (!coords) return;
+    const visited = visitedStopIds.has(b.id);
+    const marker = makeMarker(b, coords, visited);
+    marker.addTo(passportMap);
+    mapMarkers[b.id] = marker;
+  });
+}
+
+function makeMarker(b, coords, visited) {
+  const color  = visited ? '#e8357a' : '#aaaaaa';
+  const border = visited ? '#c0215f' : '#888888';
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="
+      width:18px;height:18px;border-radius:50%;
+      background:${color};border:2.5px solid ${border};
+      box-shadow:0 2px 6px rgba(0,0,0,0.25);
+    "></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+
+  const typeLabel = b.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied';
+  const popupHtml = `
+    <div style="font-family:sans-serif;min-width:160px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">${b.name}</div>
+      <div style="font-size:12px;color:#666;margin-bottom:6px">${b.neighborhood} · ${typeLabel}</div>
+      ${visited
+        ? `<div style="color:#e8357a;font-weight:600;font-size:12px">✓ Visited</div>`
+        : `<button onclick="showCheckin(${b.stop_number})"
+             style="background:#e8357a;color:#fff;border:none;border-radius:6px;
+                    padding:5px 12px;font-size:12px;cursor:pointer;width:100%">
+             Check in here
+           </button>`
+      }
+    </div>`;
+
+  return L.marker(coords, { icon }).bindPopup(popupHtml);
+}
+
+function updateMapMarkers() {
+  if (!passportMap) return;
+  businesses.forEach(b => {
+    const coords = BUSINESS_COORDS[b.name];
+    if (!coords || !mapMarkers[b.id]) return;
+    const visited = visitedStopIds.has(b.id);
+    // Replace marker with updated color
+    passportMap.removeLayer(mapMarkers[b.id]);
+    mapMarkers[b.id] = makeMarker(b, coords, visited).addTo(passportMap);
+  });
+}
+
 // ── SCREEN NAVIGATION ────────────────────────────────────────────────────────
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -265,6 +358,8 @@ async function lookupPassport() {
 // ── LOAD PASSPORT VIEW ───────────────────────────────────────────────────────
 async function loadPassport(passportId) {
   showScreen('screen-passport');
+  // Init map after screen is visible so Leaflet can measure the container
+  setTimeout(initMap, 50);
  
   if (passportId && supabaseClient) {
     const data = await getPassport(passportId);
@@ -295,7 +390,8 @@ function renderPassport() {
     const el = document.getElementById(m.id);
     if (el) el.classList.toggle('unlocked', count >= m.count);
   });
- 
+
+  updateMapMarkers();
   renderStops();
 }
  
