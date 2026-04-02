@@ -82,7 +82,7 @@
       <div class="stripe-bar"></div>
       <div class="success-icon">🏳️‍🌈</div>
       <h2 class="screen-title">You're in. <span>Let's crawl.</span></h2>
-      <p class="screen-sub">Check your email for your personal passport link. Bookmark it — that's your passport all weekend.</p>
+      <p class="screen-sub">Your passport is ready. <strong>Save the link below</strong> — it's your ticket all weekend. Bookmark it, screenshot it, or copy it somewhere safe.</p>
       <div class="passport-card" id="ob-passport-card">
         <div class="passport-card-header">
           <div class="passport-id" id="ob-passport-id">PASSPORT #QBC-????</div>
@@ -94,6 +94,10 @@
           <span class="passport-stops">Stops visited: <strong>0 of 12</strong></span>
           <span class="passport-cta">Start crawling →</span>
         </div>
+      </div>
+      <div class="passport-link-box" id="ob-passport-link" onclick="copyPassportLink()">
+        <span id="ob-passport-url"></span>
+        <span class="passport-link-copy">Copy</span>
       </div>
       <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open my passport</button>
       <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
@@ -111,8 +115,7 @@
         <input class="form-input" id="lookup-email" type="email" placeholder="jordan@email.com" />
       </div>
       <div id="lookup-error" class="form-error hidden"></div>
-      <div id="lookup-success" class="form-success hidden">Passport link sent! Check your email.</div>
-      <button class="btn-primary" onclick="lookupPassport()">Send my passport link</button>
+      <button class="btn-primary" onclick="lookupPassport()">Open my passport</button>
     </div>
   </div>
 
