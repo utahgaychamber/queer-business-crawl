@@ -13,15 +13,15 @@ const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'qbc-admin-2025';
 // To add/edit businesses without touching code: update the Supabase table.
  
 const SEED_BUSINESSES = [
-  { id:1, name:'Sugar House Coffee',          neighborhood:'Sugar House',   type:'allied', emoji:'☕️', about:'Enjoy coffee. Eat local. Be kind.' },
-  { id:2, name:'Under the Umbrella',          neighborhood:'Downtown',      type:'owned',  emoji:'📚', about:'A Queer Little Bookstore & Cafe.' },
-  { id:3, name:'Nail Legends',                neighborhood:'West Jordan',   type:'owned',  emoji:'💅', about:'A modern nail studio built on artistry, care, and inclusivity.' },
-  { id:4, name:'Space Tea',                   neighborhood:'Central City',  type:'owned',  emoji:'🧋', about:'Locally owned boba & dessert cafe.' },
-  { id:5, name:'Lucero Hair & Wellness',      neighborhood:'Central City',  type:'owned',  emoji:'💇', about:'SLC Inclusive Hair — we do all hair, for all people.' },
-  { id:6, name:'Brickyard Boxing & Conditioning', neighborhood:'Millcreek', type:'owned',  emoji:'🥊', about:'The most complete workout in SLC.' },
-  { id:7, name:'Simple Modern Therapy',       neighborhood:'Liberty Wells', type:'owned',  emoji:'🫶', about:"Salt Lake City's inclusive, secular sanctuary for the 'everyone else.'" },
-  { id:8, name:'Wasatch Food Co-Op',          neighborhood:'Liberty Wells', type:'allied', emoji:'🛒', about:'Community-owned cooperative grocery store.' },
-  { id:9, name:'Laziz Kitchen',               neighborhood:'Central West',  type:'allied', emoji:'🍴', about:'Reimagining Lebanese culinary tradition — honoring classic recipes with fresh takes.' },
+  { id:1, name:'Sugar House Coffee',          neighborhood:'Sugar House',   type:'allied', emoji:'☕️', about:'Enjoy coffee. Eat local. Be kind.',                                                      pin:'2011' },
+  { id:2, name:'Under the Umbrella',          neighborhood:'Downtown',      type:'owned',  emoji:'📚', about:'A Queer Little Bookstore & Cafe.',                                                       pin:'5112' },
+  { id:3, name:'Nail Legends',                neighborhood:'West Jordan',   type:'owned',  emoji:'💅', about:'A modern nail studio built on artistry, care, and inclusivity.',                         pin:'6886' },
+  { id:4, name:'Space Tea',                   neighborhood:'Central City',  type:'owned',  emoji:'🧋', about:'Locally owned boba & dessert cafe.',                                                     pin:'1085' },
+  { id:5, name:'Lucero Hair & Wellness',      neighborhood:'Central City',  type:'owned',  emoji:'💇', about:'SLC Inclusive Hair — we do all hair, for all people.',                                   pin:'1095' },
+  { id:6, name:'Brickyard Boxing & Conditioning', neighborhood:'Millcreek', type:'owned',  emoji:'🥊', about:'The most complete workout in SLC.',                                                      pin:'1227' },
+  { id:7, name:'Simple Modern Therapy',       neighborhood:'Liberty Wells', type:'owned',  emoji:'🫶', about:"Salt Lake City's inclusive, secular sanctuary for the 'everyone else.'",                 pin:'4280' },
+  { id:8, name:'Wasatch Food Co-Op',          neighborhood:'Liberty Wells', type:'allied', emoji:'🛒', about:'Community-owned cooperative grocery store.',                                             pin:'4160' },
+  { id:9, name:'Laziz Kitchen',               neighborhood:'Central West',  type:'allied', emoji:'🍴', about:'Reimagining Lebanese culinary tradition — honoring classic recipes with fresh takes.',   pin:'9120' },
 ];
  
 const MILESTONES = [
@@ -454,6 +454,8 @@ async function showCheckin(businessId) {
   document.getElementById('ci-body').classList.remove('hidden');
   document.getElementById('ci-success').classList.add('hidden');
   document.getElementById('ci-success').classList.remove('visible');
+  document.getElementById('ci-pin-input').value = '';
+  document.getElementById('ci-pin-error').classList.add('hidden');
  
   window._pendingCheckinBizId = businessId;
   showScreen('screen-checkin');
@@ -462,7 +464,20 @@ async function showCheckin(businessId) {
 async function doCheckin() {
   const bizId = window._pendingCheckinBizId;
   if (!bizId || !currentPassportId) return;
- 
+
+  // Validate PIN
+  const biz = businesses.find(b => b.stop_number === bizId || b.id === bizId);
+  if (biz && biz.pin) {
+    const entered = (document.getElementById('ci-pin-input').value || '').trim();
+    const pinError = document.getElementById('ci-pin-error');
+    if (entered !== String(biz.pin)) {
+      pinError.classList.remove('hidden');
+      document.getElementById('ci-pin-input').focus();
+      return;
+    }
+    pinError.classList.add('hidden');
+  }
+
   const btn = document.getElementById('ci-stamp-btn');
   btn.disabled = true;
   btn.textContent = 'Stamping…';
