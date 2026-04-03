@@ -13,25 +13,21 @@ const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'qbc-admin-2025';
 // To add/edit businesses without touching code: update the Supabase table.
  
 const SEED_BUSINESSES = [
-  { id:1,  name:'Brave Books SLC',              neighborhood:'9th & 9th',       type:'owned', emoji:'📚', about:'An independent bookstore celebrating queer voices, trans authors, and LGBTQ+ stories.' },
-  { id:2,  name:'Velvet Underground Vintage',    neighborhood:'9th & 9th',       type:'owned', emoji:'👗', about:'Curated vintage clothing and accessories with a queer eye for style.' },
-  { id:3,  name:'Gilded Cactus Bar',             neighborhood:'Sugar House',     type:'owned', emoji:'🍹', about:'A welcoming neighborhood bar with a full cocktail menu and regular community events.' },
-  { id:4,  name:'Bloom Florals',                 neighborhood:'Sugar House',     type:'owned', emoji:'🌸', about:'Sustainable, locally-sourced floral arrangements for every occasion.' },
-  { id:5,  name:'Prism Print Studio',            neighborhood:'Granary District',type:'owned', emoji:'🖨', about:'Screen printing, risograph, and design services with a community focus.' },
-  { id:6,  name:'Wild Honey Candle Co.',         neighborhood:'Granary District',type:'owned', emoji:'🕯', about:'Hand-poured soy candles made in SLC. Every scent tells a Utah story.' },
-  { id:7,  name:'Copper & Kind Coffee',          neighborhood:'Downtown',        type:'allied',emoji:'☕', about:'Specialty coffee shop committed to being a safe and affirming space for all.' },
-  { id:8,  name:'Spectrum Fitness SLC',          neighborhood:'Downtown',        type:'owned', emoji:'💪', about:'An inclusive gym where every body is welcome and celebrated.' },
-  { id:9,  name:'Saltair Salon Collective',      neighborhood:'Capitol Hill',    type:'owned', emoji:'✂️', about:'A worker-owned salon collective specializing in inclusive, affirming hair care.' },
-  { id:10, name:'The Porch Kitchen',             neighborhood:'Millcreek',       type:'allied',emoji:'🍽', about:'Farm-to-table comfort food with a menu that changes with the seasons.' },
-  { id:11, name:'Red Mesa Ceramics',             neighborhood:'Millcreek',       type:'allied',emoji:'🏺', about:'Hand-thrown ceramics, classes, and gallery space celebrating southwestern tradition.' },
-  { id:12, name:'Pioneer Park Provisions',       neighborhood:'West Side',       type:'allied',emoji:'🧺', about:'Local grocery and deli sourcing from Utah farms and producers.' },
+  { id:1, name:'Sugar House Coffee',          neighborhood:'Sugar House',   type:'allied', emoji:'☕️', about:'Enjoy coffee. Eat local. Be kind.' },
+  { id:2, name:'Under the Umbrella',          neighborhood:'Downtown',      type:'owned',  emoji:'📚', about:'A Queer Little Bookstore & Cafe.' },
+  { id:3, name:'Nail Legends',                neighborhood:'West Jordan',   type:'owned',  emoji:'💅', about:'A modern nail studio built on artistry, care, and inclusivity.' },
+  { id:4, name:'Space Tea',                   neighborhood:'Central City',  type:'owned',  emoji:'🧋', about:'Locally owned boba & dessert cafe.' },
+  { id:5, name:'Lucero Hair & Wellness',      neighborhood:'Central City',  type:'owned',  emoji:'💇', about:'SLC Inclusive Hair — we do all hair, for all people.' },
+  { id:6, name:'Brickyard Boxing & Conditioning', neighborhood:'Millcreek', type:'owned',  emoji:'🥊', about:'The most complete workout in SLC.' },
+  { id:7, name:'Simple Modern Therapy',       neighborhood:'Liberty Wells', type:'owned',  emoji:'🫶', about:"Salt Lake City's inclusive, secular sanctuary for the 'everyone else.'" },
+  { id:8, name:'Wasatch Food Co-Op',          neighborhood:'Liberty Wells', type:'allied', emoji:'🛒', about:'Community-owned cooperative grocery store.' },
+  { id:9, name:'Laziz Kitchen',               neighborhood:'Central West',  type:'allied', emoji:'🍴', about:'Reimagining Lebanese culinary tradition — honoring classic recipes with fresh takes.' },
 ];
  
 const MILESTONES = [
-  { id:'m-3',  count:3,  icon:'🎟', label:'Entry prize',  sub:'Raffle ticket — claim at the Chamber booth.' },
-  { id:'m-6',  count:6,  icon:'🛍', label:'Swag bag',     sub:'QBC swag bag — claim at the Chamber booth.' },
-  { id:'m-10', count:10, icon:'🏆', label:'Grand prize',  sub:'Grand prize entry — claim at the Chamber booth.' },
-  { id:'m-12', count:12, icon:'🌈', label:'Crawl Legend', sub:'You visited every stop. You ARE the crawl.' },
+  { id:'m-3', count:3, icon:'🎟', label:'Entry prize',  sub:'Raffle ticket — claim at the Chamber booth.' },
+  { id:'m-6', count:6, icon:'🛍', label:'Swag bag',     sub:'QBC swag bag — claim at the Chamber booth.' },
+  { id:'m-9', count:9, icon:'🌈', label:'Crawl Legend', sub:'You visited every stop. You ARE the crawl.' },
 ];
  
 // ── STATE ────────────────────────────────────────────────────────────────────
@@ -46,20 +42,17 @@ let passportMap = null;
 let mapMarkers = {};
 
 // ── MAP COORDINATES ──────────────────────────────────────────────────────────
-// Approximate SLC locations per business — update with real addresses in May.
+// Geocoded from real addresses.
 const BUSINESS_COORDS = {
-  'Brave Books SLC':             [40.7516, -111.8607],
-  'Velvet Underground Vintage':  [40.7511, -111.8615],
-  'Gilded Cactus Bar':           [40.7200, -111.8574],
-  'Bloom Florals':               [40.7195, -111.8562],
-  'Prism Print Studio':          [40.7468, -111.8955],
-  'Wild Honey Candle Co.':       [40.7461, -111.8963],
-  'Copper & Kind Coffee':        [40.7610, -111.8912],
-  'Spectrum Fitness SLC':        [40.7603, -111.8900],
-  'Saltair Salon Collective':    [40.7764, -111.8886],
-  'The Porch Kitchen':           [40.6876, -111.8714],
-  'Red Mesa Ceramics':           [40.6869, -111.8722],
-  'Pioneer Park Provisions':     [40.7608, -111.9112],
+  'Sugar House Coffee':              [40.7197, -111.8568],  // 2011 S 1100 E
+  'Under the Umbrella':              [40.7608, -111.9028],  // 511 W 200 S
+  'Nail Legends':                    [40.6186, -111.9282],  // 6886 S Redwood Rd, West Jordan
+  'Space Tea':                       [40.7473, -111.8903],  // 1085 S State St
+  'Lucero Hair & Wellness':          [40.7470, -111.8903],  // 1095 S State St
+  'Brickyard Boxing & Conditioning': [40.6983, -111.8543],  // 1227 E 3300 S
+  'Simple Modern Therapy':           [40.7481, -111.8749],  // 428 E 900 S
+  'Wasatch Food Co-Op':              [40.7482, -111.8751],  // 416 E 900 S
+  'Laziz Kitchen':                   [40.7479, -111.9048],  // 912 S Jefferson St
 };
  
 // ── INIT ─────────────────────────────────────────────────────────────────────
