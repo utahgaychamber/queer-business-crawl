@@ -466,11 +466,13 @@ async function doCheckin() {
   if (!bizId || !currentPassportId) return;
 
   // Validate PIN
+  // businesses may be loaded from Supabase (no pin field) — fall back to SEED_BUSINESSES by name
   const biz = businesses.find(b => b.stop_number === bizId || b.id === bizId);
-  if (biz && biz.pin) {
+  const pinSource = (biz && biz.pin) ? biz : SEED_BUSINESSES.find(s => s.name === biz?.name);
+  if (pinSource && pinSource.pin) {
     const entered = (document.getElementById('ci-pin-input').value || '').trim();
     const pinError = document.getElementById('ci-pin-error');
-    if (entered !== String(biz.pin)) {
+    if (entered !== String(pinSource.pin)) {
       pinError.classList.remove('hidden');
       document.getElementById('ci-pin-input').focus();
       return;
