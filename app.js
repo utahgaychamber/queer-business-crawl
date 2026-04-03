@@ -245,7 +245,7 @@ function makeMarker(b, coords, visited) {
       <div style="font-size:12px;color:#666;margin-bottom:6px">${b.neighborhood} · ${typeLabel}</div>
       ${visited
         ? `<div style="color:#e8357a;font-weight:600;font-size:12px">✓ Visited</div>`
-        : `<button onclick="showCheckin(${b.stop_number})"
+        : `<button onclick="showCheckin(${b.stop_number ?? b.id})"
              style="background:#e8357a;color:#fff;border:none;border-radius:6px;
                     padding:5px 12px;font-size:12px;cursor:pointer;width:100%">
              Check in here
@@ -405,7 +405,7 @@ function renderStops() {
         </div>
         <div class="stop-right">
           <div class="stop-type-tag ${b.type === 'owned' ? 'tag-owned' : 'tag-allied'}">${b.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied'}</div>
-          <button class="check-btn" ${visited ? 'disabled' : `onclick="showCheckin(${b.stop_number})"`}>${visited ? '✓ Visited' : 'Check in'}</button>
+          <button class="check-btn" ${visited ? 'disabled' : `onclick="showCheckin(${b.stop_number ?? b.id})"`}>${visited ? '✓ Visited' : 'Check in'}</button>
         </div>
       </div>
     `;
