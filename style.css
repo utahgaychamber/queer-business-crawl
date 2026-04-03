@@ -25,6 +25,8 @@ html, body {
   background: #fff;
   color: #1a1a1a;
   min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* ── Screens ── */
@@ -169,7 +171,7 @@ html, body {
   background: #fff;
   padding: 0 12px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: #1a1a1a;
+  font-size: 16px; color: #1a1a1a; /* 16px prevents iOS Safari auto-zoom on focus */
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   appearance: none;
