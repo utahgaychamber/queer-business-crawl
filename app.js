@@ -492,11 +492,11 @@ async function doCheckin() {
     visitedStopIds.add(bizId);
   }
  
-  const biz = businesses.find(b => b.id === bizId);
+  const stamped = businesses.find(b => b.id === bizId);
   const count = visitedStopIds.size;
   const total = businesses.length;
- 
-  document.getElementById('ci-stamp-emoji').textContent = biz?.emoji || '📍';
+
+  document.getElementById('ci-stamp-emoji').textContent = stamped?.emoji || '📍';
   document.getElementById('ci-success-count').textContent = `Stop ${count} of ${total}.`;
   document.getElementById('ci-success-sub').textContent =
     count >= total
