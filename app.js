@@ -110,20 +110,27 @@ async function loadBusinesses() {
 }
  
 async function createPassport(firstName, lastName, email, source) {
-  // Generate a longer code to dramatically reduce collision chance
   function genCode() {
     return 'QBC-' + Math.random().toString(36).slice(2, 7).toUpperCase();
   }
 
-  const passport = {
-    passport_code: genCode(),
-    first_name: firstName,
-    last_name: lastName || null,
-    email: email,
-    referral_source: source || null,
-  };
-
   if (supabaseClient) {
+    // If email already exists, return that passport instead of creating a duplicate
+    const { data: existing } = await supabaseClient
+      .from('passports')
+      .select('*, checkins(*)')
+      .eq('email', email)
+      .single();
+    if (existing) return existing;
+
+    const passport = {
+      passport_code: genCode(),
+      first_name: firstName,
+      last_name: lastName || null,
+      email: email,
+      referral_source: source || null,
+    };
+
     let attempts = 0;
     while (attempts < 5) {
       const { data, error } = await supabaseClient
@@ -134,22 +141,27 @@ async function createPassport(firstName, lastName, email, source) {
 
       if (!error) return data;
 
-      // Retry only on unique-constraint collision (code already taken)
-      if (error.code === '23505') {
+      // Retry only on passport_code collision
+      if (error.code === '23505' && error.message?.includes('passport_code')) {
         passport.passport_code = genCode();
         attempts++;
         continue;
       }
 
-      // Surface the real Supabase error for easier debugging
       const detail = error.message || JSON.stringify(error);
       console.error('Supabase insert error:', error);
       throw new Error(`Passport insert failed (${error.code || '400'}): ${detail}`);
     }
     throw new Error('Could not generate a unique passport code — please try again.');
   } else {
-    // Demo mode — return local object
-    return { ...passport, id: passport.passport_code };
+    return {
+      passport_code: genCode(),
+      first_name: firstName,
+      last_name: lastName || null,
+      email,
+      referral_source: source || null,
+      id: 'demo-' + Date.now(),
+    };
   }
 }
  
