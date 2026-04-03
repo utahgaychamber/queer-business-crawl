@@ -330,10 +330,8 @@ async function submitOnboarding() {
 async function lookupPassport() {
   const email = document.getElementById('lookup-email').value.trim();
   const errEl = document.getElementById('lookup-error');
-  const sucEl = document.getElementById('lookup-success');
- 
+
   errEl.classList.add('hidden');
-  sucEl.classList.add('hidden');
  
   if (!email || !email.includes('@')) {
     showError('lookup-error', 'Please enter a valid email address.'); return;
