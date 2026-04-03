@@ -200,6 +200,11 @@
         <div class="ci-already-icon">✓</div>
         <div class="ci-already-text">You already stamped this stop! Keep crawling.</div>
       </div>
+      <div class="ci-pin-row" id="ci-pin-row">
+        <label class="form-label">Ask staff for the PIN</label>
+        <input type="tel" id="ci-pin-input" class="form-input" placeholder="4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" />
+        <p class="ci-pin-error hidden" id="ci-pin-error">Wrong PIN — double-check with the staff and try again.</p>
+      </div>
       <button class="btn-primary" id="ci-stamp-btn" onclick="doCheckin()">Stamp my passport</button>
       <p class="ci-biz-about" id="ci-biz-about"></p>
     </div>
