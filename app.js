@@ -529,11 +529,14 @@ async function doCheckin() {
     nextEl.classList.add('hidden');
   }
  
+  // Update passport view in memory so it reflects the new stamp immediately
+  renderPassport();
+
   document.getElementById('ci-body').classList.add('hidden');
   const successEl = document.getElementById('ci-success');
   successEl.classList.remove('hidden');
   successEl.classList.add('visible');
- 
+
   btn.disabled = false;
   btn.textContent = 'Stamp my passport';
 }
