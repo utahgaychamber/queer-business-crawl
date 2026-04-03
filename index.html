@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Queer Business Crawl 2026 — Utah LGBTQ+ Chamber</title>
+  <title>Queer Business Crawl 2025 — Salt Lake City</title>
   <meta name="description" content="Visit LGBTQ+-owned and allied businesses across SLC. Collect stamps, unlock prizes, support the community." />
-  <meta property="og:title" content="Queer Business Crawl 2026" />
+  <meta property="og:title" content="Queer Business Crawl 2025" />
   <meta property="og:description" content="Your Pride passport to SLC's queer business community." />
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,20 +21,20 @@
       <div class="stripe-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="landing-badge"><img src="https://www.utahlgbtqchamber.org/wp-content/uploads/sites/99/2026/04/QBC-300x300.png.webp" alt="Queer Business Crawl" /></div>
       <h1 class="landing-headline">Queer Business<br><span>Crawl</span> 2025</h1>
-      <p class="landing-sub">June 20–27 · Salt Lake City</p>
+      <p class="landing-sub">Pride Weekend · June 6–8 · Salt Lake City</p>
       <p class="landing-body">Visit LGBTQ+-owned and allied businesses across SLC. Collect stamps, unlock prizes, and put real dollars behind the community.</p>
       <div class="landing-pills">
-        <div class="pill">12 STOPS</div>
-        <div class="pill">3 PRIZE TIERS</div>
-        <div class="pill">FREE TO JOIN</div>
-        <div class="pill">NO APP NEEDED</div>
+        <div class="pill">9 stops</div>
+        <div class="pill">3 prize tiers</div>
+        <div class="pill">Free to join</div>
+        <div class="pill">No app needed</div>
       </div>
       <div class="landing-actions">
-        <button class="btn-primary" onclick="showScreen('screen-onboarding')">Claim My Passport</button>
-        <button class="btn-secondary" onclick="showScreen('screen-lookup')">I Have a Passport →</button>
+        <button class="btn-primary" onclick="showScreen('screen-onboarding')">Claim my passport</button>
+        <button class="btn-secondary" onclick="showScreen('screen-lookup')">I have a passport →</button>
       </div>
       <div class="landing-admin-link">
-        <a href="#" onclick="showScreen('screen-admin-login'); return false;">ADMIN</a>
+        <a href="#" onclick="showScreen('screen-admin-login'); return false;">Chamber admin</a>
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@
     <div class="screen-wrap">
       <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
       <div class="stripe-bar"></div>
-      <h2 class="screen-title">Create Your <span>Passport</span></h2>
+      <h2 class="screen-title">Create your <span>passport</span></h2>
       <p class="screen-sub">Just your name and email — no account, no app download.</p>
       <div class="form-group">
         <label class="form-label">First name</label>
@@ -63,10 +63,10 @@
         <label class="form-label">How did you hear about the Crawl? <span class="optional">(optional)</span></label>
         <select class="form-input" id="ob-source">
           <option value="">Select one…</option>
-          <option>SLC Pride / Social Media</option>
+          <option>SLC Pride / social media</option>
           <option>Utah LGBTQ+ Chamber</option>
-          <option>A Participating Business</option>
-          <option>Friend/Word of Mouth</option>
+          <option>A participating business</option>
+          <option>Friend or word of mouth</option>
           <option>Other</option>
         </select>
       </div>
@@ -99,8 +99,8 @@
         <span id="ob-passport-url"></span>
         <span class="passport-link-copy">Copy</span>
       </div>
-      <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open My Passport</button>
-      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to Home</button>
+      <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open my passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
     </div>
   </div>
 
@@ -108,14 +108,14 @@
   <div id="screen-lookup" class="screen">
     <div class="screen-wrap">
       <button class="back-btn" onclick="showScreen('screen-landing')">← Back</button>
-      <h2 class="screen-title">Find Your <span>Passport</span></h2>
+      <h2 class="screen-title">Find your <span>passport</span></h2>
       <p class="screen-sub">Enter the email you used to sign up and we'll resend your passport link.</p>
       <div class="form-group">
         <label class="form-label">Email address</label>
         <input class="form-input" id="lookup-email" type="email" placeholder="jordan@email.com" />
       </div>
       <div id="lookup-error" class="form-error hidden"></div>
-      <button class="btn-primary" onclick="lookupPassport()">Open My Passport</button>
+      <button class="btn-primary" onclick="lookupPassport()">Open my passport</button>
     </div>
   </div>
 
@@ -127,8 +127,8 @@
         <div class="passport-header-top">
           <div>
             <div class="passport-eyebrow">Utah LGBTQ+ Chamber of Commerce</div>
-            <div class="passport-title">Queer Business <span>Crawl</span> 2026</div>
-            <div class="passport-subtitle">June 20–27 · Salt Lake City</div>
+            <div class="passport-title">Queer Business <span>Crawl</span> 2025</div>
+            <div class="passport-subtitle">Pride Weekend · June 6–8 · Salt Lake City</div>
           </div>
         </div>
         <div class="passport-owner-row">
@@ -143,14 +143,14 @@
     </div>
     <div class="progress-section">
       <div class="progress-label-row">
-        <span class="progress-label-text">Stops Visited</span>
+        <span class="progress-label-text">Stops visited</span>
         <span class="progress-count" id="progress-count">0 of 12</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
       <div class="milestones" id="milestones">
-        <div class="milestone" id="m-3"><div class="milestone-icon">🎟</div><div class="milestone-count">3 Stops</div><div class="milestone-label">Entry prize</div></div>
-        <div class="milestone" id="m-6"><div class="milestone-icon">🛍</div><div class="milestone-count">6 Stops</div><div class="milestone-label">Swag bag</div></div>
-        <div class="milestone" id="m-10"><div class="milestone-icon">🏆</div><div class="milestone-count">10 Stops</div><div class="milestone-label">Grand prize</div></div>
+        <div class="milestone" id="m-3"><div class="milestone-icon">🎟</div><div class="milestone-count">3 stops</div><div class="milestone-label">Entry prize</div></div>
+        <div class="milestone" id="m-6"><div class="milestone-icon">🛍</div><div class="milestone-count">6 stops</div><div class="milestone-label">Swag bag</div></div>
+        <div class="milestone" id="m-10"><div class="milestone-icon">🏆</div><div class="milestone-count">10 stops</div><div class="milestone-label">Grand prize</div></div>
         <div class="milestone" id="m-12"><div class="milestone-icon">🌈</div><div class="milestone-count">All 12</div><div class="milestone-label">Legend</div></div>
       </div>
     </div>
@@ -217,13 +217,13 @@
       <div class="ci-next-stop hidden" id="ci-next-stop">
         <div class="ci-next-num" id="ci-next-num">02</div>
         <div>
-          <div class="ci-next-name" id="ci-next-name">Next Stop</div>
+          <div class="ci-next-name" id="ci-next-name">Next stop</div>
           <div class="ci-next-area" id="ci-next-area"></div>
         </div>
         <div class="ci-next-arrow">→</div>
       </div>
-      <button class="btn-primary" onclick="loadPassport(currentPassportId)">View My Passport</button>
-      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to Home</button>
+      <button class="btn-primary" onclick="loadPassport(currentPassportId)">View my passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
     </div>
   </div>
 
