@@ -310,6 +310,23 @@ html, body {
   height: 100%; background: var(--pink);
   border-radius: 3px; transition: width 0.4s ease;
 }
+.prize-drawing-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--pink-light);
+  border: 1px solid var(--pink-border);
+  margin-bottom: 0.85rem;
+}
+.prize-drawing-banner.unlocked {
+  background: var(--teal-light);
+  border-color: #9FE1CB;
+}
+.prize-drawing-icon { font-size: 18px; flex-shrink: 0; }
+.prize-drawing-text {
+  font-size: 13px; font-weight: 500; color: var(--pink-dark);
+}
+.prize-drawing-banner.unlocked .prize-drawing-text { color: #085041; }
 .milestones { display: flex; gap: 8px; }
 .milestone {
   flex: 1; padding: 0.5rem;

@@ -7,11 +7,19 @@ const SUPABASE_URL = 'https://pcvnhnehdqfxcxsgencx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjdm5obmVoZHFmeGN4c2dlbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNzU2ODAsImV4cCI6MjA5MDY1MTY4MH0.JPN48mQuaAxddQZRKT4gbzVjV_BkAq9U-1OETj8n0Fk';
 const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'QBC-7176-Crawl';
 
-// Prize milestones are not yet confirmed by the Chamber. Flip this to true
-// once prize tiers are finalized — it will re-enable milestone UI everywhere
-// (passport progress bar, check-in success screen, admin prize panel)
+// Prize milestones (tiered: 3/10/20/33) are not yet confirmed by the Chamber.
+// Flip this to true once tiers are finalized — it will re-enable milestone UI
+// everywhere (passport progress bar, check-in success screen, admin panel)
 // without needing to dig through the code again.
 const PRIZES_ENABLED = false;
+
+// Generic prize drawing entry — separate from the tiered milestones above.
+// This is the simple "visit 6, get entered to win" message live now.
+// Flip to false if the chamber wants this removed/replaced later.
+const PRIZE_DRAWING_ENABLED = true;
+const PRIZE_DRAWING_THRESHOLD = 6;
+const PRIZE_DRAWING_TEXT = 'Visit 6 locations and be entered to win a prize bundle.';
+const PRIZE_DRAWING_UNLOCKED_TEXT = "You're entered! Visit more stops to keep the Pride spirit going.";
 
 // ── BUSINESS DATA ────────────────────────────────────────────────────────────
 // This is your fallback/seed list. Once Supabase is wired up,
@@ -445,6 +453,17 @@ function renderPassport() {
   document.getElementById('progress-count').textContent = `${count} of ${total}`;
   document.getElementById('progress-fill').style.width = `${Math.round((count/total)*100)}%`;
 
+  const drawingBanner = document.getElementById('prize-drawing-banner');
+  if (drawingBanner) {
+    drawingBanner.classList.toggle('hidden', !PRIZE_DRAWING_ENABLED);
+    if (PRIZE_DRAWING_ENABLED) {
+      const unlocked = count >= PRIZE_DRAWING_THRESHOLD;
+      drawingBanner.classList.toggle('unlocked', unlocked);
+      document.getElementById('prize-drawing-text').textContent =
+        unlocked ? PRIZE_DRAWING_UNLOCKED_TEXT : PRIZE_DRAWING_TEXT;
+    }
+  }
+
   const milestonesEl = document.getElementById('milestones');
   if (milestonesEl) milestonesEl.classList.toggle('hidden', !PRIZES_ENABLED);
 
@@ -568,14 +587,21 @@ async function doCheckin() {
   document.getElementById('ci-success-sub').textContent =
     count >= total
       ? 'You visited every stop. You are a Crawl Legend. 🌈'
-      : PRIZES_ENABLED
-        ? `${total - count} more stop${total - count !== 1 ? 's' : ''} to go for the grand prize.`
+      : PRIZE_DRAWING_ENABLED && count < PRIZE_DRAWING_THRESHOLD
+        ? `${PRIZE_DRAWING_THRESHOLD - count} more stop${PRIZE_DRAWING_THRESHOLD - count !== 1 ? 's' : ''} to be entered to win a prize bundle.`
         : `${total - count} more stop${total - count !== 1 ? 's' : ''} to go.`;
  
-  // Check milestone unlocks (only if prizes are confirmed and enabled)
+  // Check unlocks: prize drawing threshold takes priority, tiered milestones are paused
   const milestoneBox = document.getElementById('ci-milestone-box');
+  const hitDrawingThreshold = PRIZE_DRAWING_ENABLED && count === PRIZE_DRAWING_THRESHOLD;
   const newMilestone = PRIZES_ENABLED ? [...MILESTONES].reverse().find(m => count === m.count) : null;
-  if (newMilestone) {
+
+  if (hitDrawingThreshold) {
+    document.getElementById('ci-milestone-icon').textContent = '🎁';
+    document.getElementById('ci-milestone-title').textContent = "You're entered to win!";
+    document.getElementById('ci-milestone-sub').textContent = PRIZE_DRAWING_TEXT;
+    milestoneBox.classList.remove('hidden');
+  } else if (newMilestone) {
     document.getElementById('ci-milestone-icon').textContent = newMilestone.icon;
     document.getElementById('ci-milestone-title').textContent = newMilestone.label + ' unlocked!';
     document.getElementById('ci-milestone-sub').textContent = newMilestone.sub;
