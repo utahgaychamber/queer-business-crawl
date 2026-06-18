@@ -5,7 +5,13 @@
 
 const SUPABASE_URL = 'https://pcvnhnehdqfxcxsgencx.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjdm5obmVoZHFmeGN4c2dlbmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNzU2ODAsImV4cCI6MjA5MDY1MTY4MH0.JPN48mQuaAxddQZRKT4gbzVjV_BkAq9U-1OETj8n0Fk';
-const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'qbc-admin-2025';
+const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'QBC-7176-Crawl';
+
+// Prize milestones are not yet confirmed by the Chamber. Flip this to true
+// once prize tiers are finalized — it will re-enable milestone UI everywhere
+// (passport progress bar, check-in success screen, admin prize panel)
+// without needing to dig through the code again.
+const PRIZES_ENABLED = false;
 
 // ── BUSINESS DATA ────────────────────────────────────────────────────────────
 // This is your fallback/seed list. Once Supabase is wired up,
@@ -13,21 +19,46 @@ const ADMIN_PASSWORD = window.ENV_ADMIN_PASSWORD || 'qbc-admin-2025';
 // To add/edit businesses without touching code: update the Supabase table.
  
 const SEED_BUSINESSES = [
-  { id:1, name:'Sugar House Coffee',          neighborhood:'Sugar House',   type:'allied', emoji:'☕️', about:'Enjoy coffee. Eat local. Be kind.',                                                      pin:'2011' },
-  { id:2, name:'Under the Umbrella',          neighborhood:'Downtown',      type:'owned',  emoji:'📚', about:'A Queer Little Bookstore & Cafe.',                                                       pin:'5112' },
-  { id:3, name:'Nail Legends',                neighborhood:'West Jordan',   type:'owned',  emoji:'💅', about:'A modern nail studio built on artistry, care, and inclusivity.',                         pin:'6886' },
-  { id:4, name:'Space Tea',                   neighborhood:'Central City',  type:'owned',  emoji:'🧋', about:'Locally owned boba & dessert cafe.',                                                     pin:'1085' },
-  { id:5, name:'Lucero Hair & Wellness',      neighborhood:'Central City',  type:'owned',  emoji:'💇', about:'SLC Inclusive Hair — we do all hair, for all people.',                                   pin:'1095' },
-  { id:6, name:'Brickyard Boxing & Conditioning', neighborhood:'Millcreek', type:'owned',  emoji:'🥊', about:'The most complete workout in SLC.',                                                      pin:'1227' },
-  { id:7, name:'Simple Modern Therapy',       neighborhood:'Liberty Wells', type:'owned',  emoji:'🫶', about:"Salt Lake City's inclusive, secular sanctuary for the 'everyone else.'",                 pin:'4280' },
-  { id:8, name:'Wasatch Food Co-Op',          neighborhood:'Liberty Wells', type:'allied', emoji:'🛒', about:'Community-owned cooperative grocery store.',                                             pin:'4160' },
-  { id:9, name:'Laziz Kitchen',               neighborhood:'Central West',  type:'allied', emoji:'🍴', about:'Reimagining Lebanese culinary tradition — honoring classic recipes with fresh takes.',   pin:'9120' },
+  { id:1, stop_number:1, name:'Native Flower Company', type:'allied', emoji:'🌸', about:'We are a cut flower shop specializing in every day unique and creative floral designs as well as weddings, corporate events, and parties.', pin:'0430' },
+  { id:2, stop_number:2, name:'Weller Book Works', type:'allied', emoji:'📚', about:'Weller Book Works is the Grand Dame of Salt Lake bookstores. Founded by Gus Weller in 1929, our store has been in various locations and known by different names.', pin:'0607' },
+  { id:3, stop_number:3, name:'Oliver & Princess Natasha Vintage Shop', type:'allied', emoji:'👗', about:'Proudly ally-owned & committed to supporting a diverse community of vendors, including LGBTQIA+ makers & collectors.', pin:'1531' },
+  { id:4, stop_number:4, name:'MILK+', type:'allied', emoji:'🍸', about:'MILK+ is a 21+ nightclub, bar, and entertainment venue in Salt Lake City dedicated to creating an inclusive space where people from all backgrounds can connect, celebrate, and have fun.', pin:'0049' },
+  { id:5, stop_number:5, name:'Mountain West Cider', type:'allied', emoji:'🍻', about:'Mountain West Cider crafts every day, seasonal and artisanal hard ciders and wine using ingredients sourced from across the Mountain West region.', pin:'0425' },
+  { id:6, stop_number:6, name:'Lucky Ones Coffee', type:'allied', emoji:'☕', about:'Lucky Ones Coffee is a nonprofit, community-centered café creating meaningful employment opportunities for neurodiverse individuals and adults with disabilities.', pin:'0280' },
+  { id:7, stop_number:7, name:'SomaSense Wellness', type:'allied', emoji:'🧘', about:'I am a massage therapist and master esthetician specializing in therapeutic massage, advanced bodywork, and relaxing skincare services.', pin:'1945' },
+  { id:8, stop_number:8, name:'Project Rainbow Utah', type:'allied', emoji:'🏳️‍🌈', about:'Project Rainbow empowers and uplifts our LGBTQ Community through visibility campaigns and our community fund which supports grassroots efforts across Utah.', pin:'2065' },
+  { id:9, stop_number:9, name:'HK Brewing Collective Taproom & Bar', type:'allied', emoji:'🍹', about:'HK Brewing Co. Taproom & Bar is a women-owned cocktail bar and community space in Salt Lake City serving creative cocktails, standout zero-proof drinks, award-winning mocktails, and more!', pin:'0370' },
+  { id:10, stop_number:10, name:'The King\'s English Bookshop', type:'allied', emoji:'📖', about:'A general interest independent bookstore selling new books to all ages since 1977.', pin:'1511' },
+  { id:11, stop_number:11, name:'Ogden Therapy Cooperative', type:'allied', emoji:'🫶', about:'Inclusive mental health therapy cooperative, with individual, relationship, and family therapy services, incubator space for private practice therapists to launch their practices, and community...', pin:'0707' },
+  { id:12, stop_number:12, name:'Wiconi Counseling Center', type:'allied', emoji:'🫂', about:'Mental health therapists serving the LGBTQ+ community in Davis and Weber Counties.', pin:'0872' },
+  { id:13, stop_number:13, name:'Soma Psychotherapy', type:'allied', emoji:'🧠', about:'Soma Psychotherapy is a progressive, trauma-informed therapy practice based in Millcreek, Utah, offering in-person and telehealth services to individuals, couples, and families across the state.', pin:'4578' },
+  { id:14, stop_number:14, name:'Parfé Diem', type:'allied', emoji:'🍮', about:'Parfé Diem is a local dessert shop in Salt Lake City’s Sugarhouse neighborhood, specializing in a modern take on the beloved Southern classic,banana pudding.', pin:'2040' },
+  { id:15, stop_number:15, name:'Space Tea', type:'allied', emoji:'🧋', about:'Space Tea enhances our local community through high-quality boba drinks and desserts, events, and partnerships, all at competitive prices accessible to our neighborhood.', pin:'1085' },
+  { id:16, stop_number:16, name:'btone FITNESS Brickyard', type:'allied', emoji:'🏋️', about:'btone FITNESS Brickyard is a small-group reformer studio in Millcreek’s Brickyard neighborhood. We use an athletic, Pilates-inspired hybrid to build muscle, strength, balance, and functional...', pin:'1295' },
+  { id:17, stop_number:17, name:'Dented Brick Distillery', type:'allied', emoji:'🥃', about:'A boutique grain-to-glass distillery with two amazing origin stories! Our spirits are made from an on site artesian well water.', pin:'3100' },
+  { id:18, stop_number:18, name:'SkinSaitions LLC', type:'allied', emoji:'✨', about:'We are a Safe Queer friendly salon that offers Electrolysis (permanent hair removal), Waxing, Relaxing Facials, and many Clinical treatments to keep your youthful skin.', pin:'1945' },
+  { id:19, stop_number:19, name:'Adecco Staffing', type:'allied', emoji:'💼', about:'Employment Staffing', pin:'0054' },
+  { id:20, stop_number:20, name:'Scion Cider Bar', type:'allied', emoji:'🍾', about:'Scion is an award winning, cider-focused bar featuring a curated menu of modern & traditional ciders, apple based spirits & specialty sippers from small orchards, urban producers & artisans across...', pin:'0916' },
+  { id:21, stop_number:21, name:'Salt Lake Game Show Experience', type:'allied', emoji:'🎮', about:'Ever wanted to be a contestant on a TV game show? Now’s your chance to experience what it’s like!', pin:'1154' },
+  { id:22, stop_number:22, name:'Alliance Counseling', type:'allied', emoji:'🫶', about:'We are a small group behavioral health practice serving the queer community.', pin:'0352' },
+  { id:23, stop_number:23, name:'Cat Palmer Photography', type:'allied', emoji:'📷', about:'I am a headshot photographer dedicated to helping people feel seen, confident, and connected through authentic portraits.', pin:'0412' },
+  { id:24, stop_number:24, name:'El Cholo', type:'allied', emoji:'🌮', about:'Founded in Los Angeles, California, in 1923, El Cholo has been serving authentic Mexican cuisine and creating memorable dining experiences for over a century.', pin:'2166' },
+  { id:25, stop_number:25, name:'Argentinas Best Empanadas', type:'allied', emoji:'🥟', about:'Our empanadas are a reflection of the charming rusticity of our Argentinian family food traditions. Our empanadas aim to emulate that nostalgic memories of grandma’s baking empanadas in her...', pin:'0357' },
+  { id:26, stop_number:26, name:'Sweet Hazel & Co.', type:'allied', emoji:'🍫', about:'Beyond being delicious, Sweet Hazel & Co candy bars are inclusive. The entire product range is dairy-free and egg-free with multiple options for gluten-free, nut-free, and sugar-free.', pin:'1000' },
+  { id:27, stop_number:27, name:'Melancholy Bar & Lounge', type:'allied', emoji:'🍷', about:'We are a niche wine and cocktail bar located in the heart of Salt Lake City. We’re not your average bar, we\'re a thoughtfully curated space where natural wines, seasonal cocktails, and vintage...', pin:'0556' },
+  { id:28, stop_number:28, name:'Pantry Products', type:'allied', emoji:'🧴', about:'As a 100% female-owned and LGBTQ+ owned business, we take pride in creating high-quality, all-natural self-care and wellness products.', pin:'0888' },
+  { id:29, stop_number:29, name:'Skinworks School of Advanced Skincare', type:'allied', emoji:'💆', about:'We are a boutique beauty school specializing in esthetics, offering hands-on education and professional student-performed services.', pin:'2121' },
+  { id:30, stop_number:30, name:'Lovebound Library', type:'allied', emoji:'💞', about:'Lovebound Library is Utah’s first romance only bookstore. We are a safe space for everyone to come and explore their journey with romance novels!', pin:'0145' },
+  { id:31, stop_number:31, name:'Sugar House Coffee', type:'allied', emoji:'☕', about:'Sugar House Coffee offers local faire, freshly roasted Rimini Coffee, delicious sandwiches and smoothies all day long.', pin:'2011' },
+  { id:32, stop_number:32, name:'Under the Umbrella Bookstore', type:'allied', emoji:'📚', about:'Under the Umbrella is a queer little bookstore on Ute, Goshute, Shoshone, and Paiute land (Salt Lake City, Utah), sharing and celebrating queer books written by queer authors and offering a safe,...', pin:'0511' },
+  { id:33, stop_number:33, name:'Nikau Chiropractic', type:'allied', emoji:'🦴', about:'Nikau Chiropractic is a queer-owned practice dedicated to high-quality, inclusive care for people of all backgrounds and identities.', pin:'0810' },
 ];
  
 const MILESTONES = [
-  { id:'m-3', count:3, icon:'🎟', label:'Entry prize',  sub:'Raffle ticket — claim at the Chamber booth.' },
-  { id:'m-6', count:6, icon:'🛍', label:'Swag bag',     sub:'QBC swag bag — claim at the Chamber booth.' },
-  { id:'m-9', count:9, icon:'🌈', label:'Crawl Legend', sub:'You visited every stop. You ARE the crawl.' },
+  { id:'m-3', count:3, icon:'🎟', label:'Entry prize', sub:'Raffle ticket, claim at the Chamber booth.' },
+  { id:'m-10', count:10, icon:'🛍', label:'Swag bag', sub:'QBC swag bag, claim at the Chamber booth.' },
+  { id:'m-20', count:20, icon:'🏆', label:'Grand prize', sub:'Grand prize entry, claim at the Chamber booth.' },
+  { id:'m-33', count:33, icon:'🌈', label:'Crawl Legend', sub:'You visited every stop. You ARE the crawl.' },
 ];
  
 // ── STATE ────────────────────────────────────────────────────────────────────
@@ -44,15 +75,39 @@ let mapMarkers = {};
 // ── MAP COORDINATES ──────────────────────────────────────────────────────────
 // Geocoded from real addresses.
 const BUSINESS_COORDS = {
-  'Sugar House Coffee':              [40.7197, -111.8568],  // 2011 S 1100 E
-  'Under the Umbrella':              [40.7608, -111.9028],  // 511 W 200 S
-  'Nail Legends':                    [40.6186, -111.9282],  // 6886 S Redwood Rd, West Jordan
-  'Space Tea':                       [40.7473, -111.8903],  // 1085 S State St
-  'Lucero Hair & Wellness':          [40.7470, -111.8903],  // 1095 S State St
-  'Brickyard Boxing & Conditioning': [40.6983, -111.8543],  // 1227 E 3300 S
-  'Simple Modern Therapy':           [40.7481, -111.8749],  // 428 E 900 S
-  'Wasatch Food Co-Op':              [40.7482, -111.8751],  // 416 E 900 S
-  'Laziz Kitchen':                   [40.7479, -111.9048],  // 912 S Jefferson St
+  'Native Flower Company': [40.7481, -111.881],
+  'Weller Book Works': [40.7583, -111.8769],
+  'Oliver & Princess Natasha Vintage Shop': [40.7326, -111.8673],
+  'MILK+': [40.748, -111.8901],
+  'Mountain West Cider': [40.7817, -111.9009],
+  'Lucky Ones Coffee': [40.7836, -111.898],
+  'SomaSense Wellness': [40.7216, -111.8649],
+  'Project Rainbow Utah': [40.7177, -111.8417],
+  'HK Brewing Collective Taproom & Bar': [40.7608, -111.8961],
+  'The King\'s English Bookshop': [40.7326, -111.8553],
+  'Ogden Therapy Cooperative': [41.2249, -111.9624],
+  'Wiconi Counseling Center': [41.0595, -111.9756],
+  'Soma Psychotherapy': [40.6551, -111.8601],
+  'Parfé Diem': [40.7193, -111.8673],
+  'Space Tea': [40.7434, -111.8913],
+  'btone FITNESS Brickyard': [40.7006, -111.8649],
+  'Dented Brick Distillery': [40.6924, -111.8961],
+  'SkinSaitions LLC': [40.7216, -111.8649],
+  'Adecco Staffing': [40.7177, -111.8926],
+  'Scion Cider Bar': [40.7477, -111.8985],
+  'Salt Lake Game Show Experience': [40.7417, -111.8985],
+  'Alliance Counseling': [40.7633, -111.8865],
+  'Cat Palmer Photography': [40.7605, -111.9081],
+  'El Cholo': [40.7161, -111.8697],
+  'Argentinas Best Empanadas': [40.7619, -111.8865],
+  'Sweet Hazel & Co.': [40.7456, -111.8937],
+  'Melancholy Bar & Lounge': [40.7568, -111.8985],
+  'Pantry Products': [40.7484, -111.8865],
+  'Skinworks School of Advanced Skincare': [40.7172, -111.89],
+  'Lovebound Library': [40.7481, -111.8878],
+  'Sugar House Coffee': [40.72, -111.8649],
+  'Under the Umbrella Bookstore': [40.7658, -111.9036],
+  'Nikau Chiropractic': [40.7506, -111.8719],
 };
  
 // ── INIT ─────────────────────────────────────────────────────────────────────
@@ -250,11 +305,10 @@ function makeMarker(b, coords, visited) {
     iconAnchor: [9, 9],
   });
 
-  const typeLabel = b.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied';
   const popupHtml = `
     <div style="font-family:sans-serif;min-width:160px">
       <div style="font-weight:700;font-size:14px;margin-bottom:4px">${b.name}</div>
-      <div style="font-size:12px;color:#666;margin-bottom:6px">${b.neighborhood} · ${typeLabel}</div>
+      <div style="font-size:12px;color:#666;margin-bottom:6px">Stop ${b.stop_number ?? ''}</div>
       ${visited
         ? `<div style="color:#e8357a;font-weight:600;font-size:12px">✓ Visited</div>`
         : `<button onclick="showCheckin(${b.stop_number ?? b.id})"
@@ -390,11 +444,16 @@ function renderPassport() {
  
   document.getElementById('progress-count').textContent = `${count} of ${total}`;
   document.getElementById('progress-fill').style.width = `${Math.round((count/total)*100)}%`;
- 
-  MILESTONES.forEach(m => {
-    const el = document.getElementById(m.id);
-    if (el) el.classList.toggle('unlocked', count >= m.count);
-  });
+
+  const milestonesEl = document.getElementById('milestones');
+  if (milestonesEl) milestonesEl.classList.toggle('hidden', !PRIZES_ENABLED);
+
+  if (PRIZES_ENABLED) {
+    MILESTONES.forEach(m => {
+      const el = document.getElementById(m.id);
+      if (el) el.classList.toggle('unlocked', count >= m.count);
+    });
+  }
 
   updateMapMarkers();
   renderStops();
@@ -402,21 +461,17 @@ function renderPassport() {
  
 function renderStops() {
   const list = document.getElementById('stops-list');
-  const filtered = currentFilter === 'all'
-    ? businesses
-    : businesses.filter(b => b.type === currentFilter);
- 
-  list.innerHTML = filtered.map(b => {
+
+  list.innerHTML = businesses.map((b, i) => {
     const visited = visitedStopIds.has(b.id);
     return `
       <div class="stop-card ${visited ? 'visited' : ''}">
         <div class="stop-emoji">${b.emoji || '📍'}</div>
         <div class="stop-info">
           <div class="stop-name">${b.name}</div>
-          <div class="stop-area">${b.neighborhood}</div>
+          <div class="stop-area">Stop ${i + 1}</div>
         </div>
         <div class="stop-right">
-          <div class="stop-type-tag ${b.type === 'owned' ? 'tag-owned' : 'tag-allied'}">${b.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied'}</div>
           <button class="check-btn" ${visited ? 'disabled' : `onclick="showCheckin(${b.stop_number ?? b.id})"`}>${visited ? '✓ Visited' : 'Check in'}</button>
         </div>
       </div>
@@ -445,8 +500,6 @@ async function showCheckin(businessId) {
  
   document.getElementById('ci-stop-num').textContent = `Stop #${stopNum}`;
   document.getElementById('ci-biz-name').textContent = biz.name;
-  document.getElementById('ci-biz-area').textContent = `${biz.neighborhood} · Salt Lake City`;
-  document.getElementById('ci-type-tag').textContent = biz.type === 'owned' ? 'LGBTQ+ Owned' : 'Allied';
   document.getElementById('ci-stop-tag').textContent = `Stop ${stopNum} of ${businesses.length}`;
   document.getElementById('ci-biz-about').textContent = biz.about || '';
   document.getElementById('ci-progress-text').textContent = `${newCount} of ${businesses.length}`;
@@ -515,11 +568,13 @@ async function doCheckin() {
   document.getElementById('ci-success-sub').textContent =
     count >= total
       ? 'You visited every stop. You are a Crawl Legend. 🌈'
-      : `${total - count} more stop${total - count !== 1 ? 's' : ''} to go for the grand prize.`;
+      : PRIZES_ENABLED
+        ? `${total - count} more stop${total - count !== 1 ? 's' : ''} to go for the grand prize.`
+        : `${total - count} more stop${total - count !== 1 ? 's' : ''} to go.`;
  
-  // Check milestone unlocks
-  const newMilestone = [...MILESTONES].reverse().find(m => count === m.count);
+  // Check milestone unlocks (only if prizes are confirmed and enabled)
   const milestoneBox = document.getElementById('ci-milestone-box');
+  const newMilestone = PRIZES_ENABLED ? [...MILESTONES].reverse().find(m => count === m.count) : null;
   if (newMilestone) {
     document.getElementById('ci-milestone-icon').textContent = newMilestone.icon;
     document.getElementById('ci-milestone-title').textContent = newMilestone.label + ' unlocked!';
@@ -537,7 +592,7 @@ async function doCheckin() {
     const nextNum = businesses.indexOf(nextStop) + 1;
     document.getElementById('ci-next-num').textContent = String(nextNum).padStart(2,'0');
     document.getElementById('ci-next-name').textContent = nextStop.name;
-    document.getElementById('ci-next-area').textContent = nextStop.neighborhood;
+    document.getElementById('ci-next-area').textContent = `Stop ${nextNum} of ${businesses.length}`;
     nextEl.classList.remove('hidden');
   } else {
     nextEl.classList.add('hidden');
@@ -619,7 +674,7 @@ function renderAdminStats(s) {
     <div class="admin-stat"><div class="admin-stat-val pink">${s.passportCount}</div><div class="admin-stat-lbl">Passports issued</div></div>
     <div class="admin-stat"><div class="admin-stat-val purple">${s.checkinCount}</div><div class="admin-stat-lbl">Total check-ins</div></div>
     <div class="admin-stat"><div class="admin-stat-val teal">${s.avgStops}</div><div class="admin-stat-lbl">Avg stops / person</div></div>
-    <div class="admin-stat"><div class="admin-stat-val">${s.prizeClaims}</div><div class="admin-stat-lbl">Prize claims</div></div>
+    ${PRIZES_ENABLED ? `<div class="admin-stat"><div class="admin-stat-val">${s.prizeClaims}</div><div class="admin-stat-lbl">Prize claims</div></div>` : ''}
   `;
 }
  
@@ -644,11 +699,16 @@ function renderAdminFeed(items) {
     </div>
   `).join('');
  
-  document.getElementById('admin-prizes').innerHTML = `
-    <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-entry">Entry (3 stops)</div>Raffle ticket</div><div class="admin-prize-val">—</div></div>
-    <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-swag">Swag (6 stops)</div>Chamber bag</div><div class="admin-prize-val">—</div></div>
-    <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-grand">Grand (10 stops)</div>Grand prize</div><div class="admin-prize-val">—</div></div>
-  `;
+  const prizesSection = document.getElementById('admin-prizes')?.closest('.admin-section');
+  if (prizesSection) prizesSection.classList.toggle('hidden', !PRIZES_ENABLED);
+
+  if (PRIZES_ENABLED) {
+    document.getElementById('admin-prizes').innerHTML = `
+      <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-entry">Entry (3 stops)</div>Raffle ticket</div><div class="admin-prize-val">—</div></div>
+      <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-swag">Swag (10 stops)</div>Chamber bag</div><div class="admin-prize-val">—</div></div>
+      <div class="admin-prize-row"><div class="admin-prize-label"><div class="prize-tag p-grand">Grand (20 stops)</div>Grand prize</div><div class="admin-prize-val">—</div></div>
+    `;
+  }
 }
  
 async function exportCSV(type) {
@@ -677,7 +737,7 @@ async function exportCSV(type) {
       // Join checkins with passport and business info via FK relationships
       const res = await supabaseClient
         .from('checkins')
-        .select('checked_in_at, passports(passport_code, first_name, last_name, email), businesses(name, neighborhood, type)')
+        .select('checked_in_at, passports(passport_code, first_name, last_name, email), businesses(name)')
         .order('checked_in_at');
       data = (res.data || []).map(c => ({
         checked_in_at:  c.checked_in_at,
@@ -686,8 +746,6 @@ async function exportCSV(type) {
         last_name:      c.passports?.last_name      || '',
         email:          c.passports?.email          || '',
         business_name:  c.businesses?.name          || '',
-        neighborhood:   c.businesses?.neighborhood  || '',
-        type:           c.businesses?.type          || '',
       }));
       filename = 'qbc-full-report.csv';
     }
