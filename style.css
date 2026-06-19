@@ -628,3 +628,58 @@ a.landing-badge:hover, a.landing-badge-wide:hover { opacity: 0.8; }
   border: 1px solid #eee;
   z-index: 0;
 }
+
+/* ── Passport screen footer logo ── */
+.passport-footer-logo {
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+.passport-footer-logo a {
+  display: inline-block;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.passport-footer-logo a:hover { opacity: 1; }
+.passport-footer-logo img {
+  width: 160px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── Landing sponsor footer ── */
+.landing-sponsor-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+.landing-sponsor-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 0.85rem;
+  font-family: 'Syne', sans-serif;
+}
+.landing-sponsor-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.landing-sponsor-logo {
+  display: block;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+.landing-sponsor-logo:hover { opacity: 1; }
+.landing-sponsor-logo img {
+  height: 40px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
