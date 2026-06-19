@@ -21,22 +21,21 @@
       <div class="stripe-bar"><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="landing-logo-row">
         <div class="landing-badge"><img src="https://www.utahlgbtqchamber.org/wp-content/uploads/sites/99/2026/04/QBC-300x300.png.webp" alt="Queer Business Crawl" /></div>
-        <div class="landing-badge landing-badge-wide"><img src="https://static.wixstatic.com/media/89ab3e_d2c1850a550247628f7a6b24dc08b875~mv2.png/v1/fill/w_532,h_148,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/SLC-pride-logo_rainbow-blue.png" alt="SLC Pride" /></div>
       </div>
       <h1 class="landing-headline">Queer Business<br><span>Crawl</span> 2026</h1>
       <p class="landing-sub">June 20th – 27th · Utah</p>
-      <p class="landing-body">Visit LGBTQ+-owned and allied businesses across Utah while giving the community a reason to show up and shop local during Pride month.</p>
+      <p class="landing-body">Visit LGBTQ+-owned and allied businesses across Utah. Show up and shop local during Pride month.</p>
       <div class="landing-pills">
         <div class="pill">33 stops</div>
         <div class="pill">Free to join</div>
         <div class="pill">No app needed</div>
       </div>
       <div class="landing-actions">
-        <button class="btn-primary" onclick="showScreen('screen-onboarding')">Claim my passport</button>
-        <button class="btn-secondary" onclick="showScreen('screen-lookup')">I have a passport →</button>
+        <button class="btn-primary" onclick="showScreen('screen-onboarding')">Claim My Passport</button>
+        <button class="btn-secondary" onclick="showScreen('screen-lookup')">I Have a Passport →</button>
       </div>
       <div class="landing-admin-link">
-        <a href="#" onclick="showScreen('screen-admin-login'); return false;">Chamber admin</a>
+        <a href="#" onclick="showScreen('screen-admin-login'); return false;">Chamber Admin</a>
       </div>
       <div class="landing-sponsor-footer">
         <div class="landing-sponsor-label">Presented by</div>
@@ -46,6 +45,9 @@
           </a>
           <a href="https://www.bigmouth.agency/" target="_blank" class="landing-sponsor-logo">
             <img src="https://images.squarespace-cdn.com/content/v1/660345eaf2c71f08452c9f2d/44bca7b7-5219-4c29-bd6f-d2d302703790/Untitled+design+%2813%29.png?format=1500w" alt="Big Mouth Marketing" />
+          </a>
+          <a href="https://www.slc-pride.org/" target="_blank" class="landing-sponsor-logo">
+            <img src="https://static.wixstatic.com/media/89ab3e_d2c1850a550247628f7a6b24dc08b875~mv2.png/v1/fill/w_532,h_148,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/SLC-pride-logo_rainbow-blue.png" alt="SLC Pride" />
           </a>
         </div>
       </div>
@@ -84,7 +86,7 @@
         </select>
       </div>
       <div id="ob-error" class="form-error hidden"></div>
-      <button class="btn-primary" id="ob-submit" onclick="submitOnboarding()">Send my passport link</button>
+      <button class="btn-primary" id="ob-submit" onclick="submitOnboarding()">Send My Passport Link</button>
       <p class="terms">By joining, you agree to the QBC <a href="#">terms</a> and <a href="#">privacy policy</a>.</p>
     </div>
   </div>
@@ -105,15 +107,15 @@
         <div class="passport-meta">Utah LGBTQ+ Chamber · Pride 2026</div>
         <div class="passport-footer">
           <span class="passport-stops">Stops visited: <strong>0 of 33</strong></span>
-          <span class="passport-cta">Start crawling →</span>
+          <span class="passport-cta">Start Crawling →</span>
         </div>
       </div>
       <div class="passport-link-box" id="ob-passport-link" onclick="copyPassportLink()">
         <span id="ob-passport-url"></span>
         <span class="passport-link-copy">Copy</span>
       </div>
-      <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open my passport</button>
-      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
+      <button class="btn-primary" onclick="loadPassport(currentPassportId)">Open My Passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to Home</button>
     </div>
   </div>
 
@@ -128,7 +130,7 @@
         <input class="form-input" id="lookup-email" type="email" placeholder="jordan@email.com" />
       </div>
       <div id="lookup-error" class="form-error hidden"></div>
-      <button class="btn-primary" onclick="lookupPassport()">Open my passport</button>
+      <button class="btn-primary" onclick="lookupPassport()">Open My Passport</button>
     </div>
   </div>
 
@@ -188,6 +190,9 @@
         <a href="https://www.bigmouth.agency/" target="_blank" class="landing-sponsor-logo">
           <img src="https://images.squarespace-cdn.com/content/v1/660345eaf2c71f08452c9f2d/44bca7b7-5219-4c29-bd6f-d2d302703790/Untitled+design+%2813%29.png?format=1500w" alt="Big Mouth Marketing" />
         </a>
+        <a href="https://www.slc-pride.org/" target="_blank" class="landing-sponsor-logo">
+          <img src="https://static.wixstatic.com/media/89ab3e_d2c1850a550247628f7a6b24dc08b875~mv2.png/v1/fill/w_532,h_148,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/SLC-pride-logo_rainbow-blue.png" alt="SLC Pride" />
+        </a>
       </div>
     </div>
   </div>
@@ -195,7 +200,7 @@
   <!-- SCREEN: Check-in (QR landing) -->
   <div id="screen-checkin" class="screen">
     <div class="checkin-biz-hero" id="ci-biz-hero">
-      <button class="back-btn" onclick="showScreen('screen-passport')" style="color:#993556; margin-bottom:0.5rem;">← Back to passport</button>
+      <button class="back-btn" onclick="showScreen('screen-passport')" style="color:#993556; margin-bottom:0.5rem;">← Back to Passport</button>
       <div class="ci-eyebrow">Queer Business Crawl · <span id="ci-stop-num">Stop #1</span></div>
       <div class="ci-biz-name" id="ci-biz-name">Business Name</div>
       <div class="ci-tags">
@@ -209,7 +214,7 @@
           <div class="ci-passport-name" id="ci-passport-name">Loading…</div>
           <div class="ci-passport-id" id="ci-passport-id"></div>
         </div>
-        <div class="ci-not-you" onclick="showScreen('screen-lookup')">Not you?</div>
+        <div class="ci-not-you" onclick="showScreen('screen-lookup')">Not You?</div>
       </div>
       <div class="ci-progress-mini">
         <div class="ci-progress-label-row">
@@ -220,14 +225,14 @@
       </div>
       <div id="ci-already" class="ci-already hidden">
         <div class="ci-already-icon">✓</div>
-        <div class="ci-already-text">You already stamped this stop! Keep crawling.</div>
+        <div class="ci-already-text">You Already Stamped This Stop! Keep Crawling.</div>
       </div>
       <div class="ci-pin-row" id="ci-pin-row">
-        <label class="form-label">Ask staff for the PIN</label>
+        <label class="form-label">Ask Staff for the PIN</label>
         <input type="tel" id="ci-pin-input" class="form-input" placeholder="4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" />
         <p class="ci-pin-error hidden" id="ci-pin-error">Wrong PIN — double-check with the staff and try again.</p>
       </div>
-      <button class="btn-primary" id="ci-stamp-btn" onclick="doCheckin()">Stamp my passport</button>
+      <button class="btn-primary" id="ci-stamp-btn" onclick="doCheckin()">Stamp My Passport</button>
       <p class="ci-biz-about" id="ci-biz-about"></p>
     </div>
     <div class="checkin-success hidden" id="ci-success">
@@ -249,8 +254,8 @@
         </div>
         <div class="ci-next-arrow">→</div>
       </div>
-      <button class="btn-primary" onclick="showScreen('screen-passport')">View my passport</button>
-      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to home</button>
+      <button class="btn-primary" onclick="showScreen('screen-passport')">View My Passport</button>
+      <button class="btn-secondary" onclick="showScreen('screen-landing')">Back to Home</button>
     </div>
   </div>
 
@@ -264,7 +269,7 @@
         <input class="form-input" id="admin-password" type="password" placeholder="Enter password" />
       </div>
       <div id="admin-login-error" class="form-error hidden">Incorrect password.</div>
-      <button class="btn-primary" onclick="adminLogin()">Sign in</button>
+      <button class="btn-primary" onclick="adminLogin()">Sign In</button>
     </div>
   </div>
 
@@ -288,9 +293,9 @@
       <div id="admin-feed"></div>
     </div>
     <div class="admin-export-row">
-      <button class="btn-export" onclick="exportCSV('checkins')">Export check-ins</button>
-      <button class="btn-export" onclick="exportCSV('passports')">Export passports</button>
-      <button class="btn-export btn-export-primary" onclick="exportCSV('full')">Full report</button>
+      <button class="btn-export" onclick="exportCSV('checkins')">Export Check-Ins</button>
+      <button class="btn-export" onclick="exportCSV('passports')">Export Passports</button>
+      <button class="btn-export btn-export-primary" onclick="exportCSV('full')">Full Report</button>
     </div>
   </div>
 
