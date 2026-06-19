@@ -488,7 +488,7 @@ function renderStops() {
         <div class="stop-emoji">${b.emoji || '📍'}</div>
         <div class="stop-info">
           <div class="stop-name">${b.name}</div>
-          <div class="stop-area">Stop ${i + 1}</div>
+          <div class="stop-area">${b.full_address || 'Stop ' + (i + 1)}</div>
         </div>
         <div class="stop-right">
           <button class="check-btn" ${visited ? 'disabled' : `onclick="showCheckin(${b.stop_number ?? b.id})"`}>${visited ? '✓ Visited' : 'Check in'}</button>
