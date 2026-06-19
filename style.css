@@ -61,11 +61,13 @@ html, body {
 .landing-logo-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 1.25rem;
 }
 .landing-badge {
-  width: 96px; height: 96px;
+  width: 72px; height: 72px;
+  flex-shrink: 0;
 }
 .landing-badge img {
   width: 100%; height: 100%;
@@ -74,12 +76,21 @@ html, body {
 }
 .landing-badge-divider {
   width: 1px;
-  height: 56px;
+  height: 48px;
   background: #e5e5e5;
+  flex-shrink: 0;
 }
 .landing-badge-wide {
-  width: 132px; height: 96px;
+  width: 110px; height: 72px;
+  flex-shrink: 0;
 }
+a.landing-badge, a.landing-badge-wide {
+  display: block;
+  text-decoration: none;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+a.landing-badge:hover, a.landing-badge-wide:hover { opacity: 0.8; }
 .landing-headline {
   font-family: 'Syne', sans-serif;
   font-size: 32px; font-weight: 800; line-height: 1.1;
